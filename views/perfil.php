@@ -15,6 +15,9 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 <div class="card">
     <div class="tabs-header">
         <button class="tab-btn active" onclick="openTab('edit-profile', this)"><?php echo __('profile_title'); ?></button>
+        <?php if ($urole == 6): ?>
+            <button class="tab-btn" onclick="openTab('game-profile', this)">🎮 Perfil de Juego</button>
+        <?php endif; ?>
         <button class="tab-btn" onclick="openTab('appearance', this)"><?php echo __('appearance'); ?></button>
         <button class="tab-btn" onclick="openTab('change-pass', this)"><?php echo __('security'); ?></button>
     </div>
@@ -128,6 +131,43 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
         </form>
     </div>
 
+    <?php if ($urole == 6): ?>
+    <div id="game-profile" class="tab-content hidden">
+        <form id="gameProfileForm">
+            <input type="hidden" name="action" value="update_profile">
+            <input type="hidden" name="nombre" value="<?php echo htmlspecialchars($user['nombre']??''); ?>">
+            
+            <h3 class="modal-section-title">Ajustes de Jugador</h3>
+            <p class="text-muted mb-4">Configura tu identidad para las partidas en tiempo real.</p>
+            
+            <div class="mb-4">
+                <label class="block text-muted mb-2">Apodo (Nick)</label>
+                <input type="text" name="nick" class="form-control" 
+                       value="<?php echo htmlspecialchars($user['nick'] ?? ''); ?>" 
+                       placeholder="Ej: ElMáquina7" maxlength="15">
+            </div>
+
+            <label class="block text-muted mb-2">Elige tu Avatar Predeterminado</label>
+            <div class="avatar-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                <?php 
+                $avatars = ['🛡️','⚔️','🗡️','🏛️','🏹','🔮','🥷','🏴‍☠️','🌿','⚜️','🤖','👽','🦊','🦁','🦄'];
+                foreach($avatars as $idx => $emoji): 
+                    $id = $idx + 1;
+                    $selected = (isset($user['avatar_id']) && $user['avatar_id'] == $id);
+                ?>
+                <label style="cursor:pointer; text-align:center; padding:10px; border-radius:8px; border: 2px solid <?php echo $selected ? 'var(--primary-color)' : 'transparent'; ?>; background: <?php echo $selected ? 'var(--bg-body)' : 'none'; ?>;">
+                    <input type="radio" name="avatar_id" value="<?php echo $id; ?>" <?php echo $selected ? 'checked' : ''; ?> style="display:none;" onchange="this.form.dispatchEvent(new Event('submit'))">
+                    <span style="font-size: 2rem;"><?php echo $emoji; ?></span>
+                </label>
+                <?php endforeach; ?>
+            </div>
+            <div class="text-right mt-4">
+                <button type="submit" class="btn-primary">Guardar Perfil de Juego</button>
+            </div>
+        </form>
+    </div>
+    <?php endif; ?>
+
     <div id="appearance" class="tab-content hidden">
         <form id="themeForm">
             <input type="hidden" name="action" value="update_profile">
@@ -235,6 +275,9 @@ const handleSave = async (e) => {
 document.getElementById('profileForm').addEventListener('submit', handleSave);
 document.getElementById('themeForm').addEventListener('submit', handleSave);
 document.getElementById('passForm').addEventListener('submit', handleSave);
+if(document.getElementById('gameProfileForm')) {
+    document.getElementById('gameProfileForm').addEventListener('submit', handleSave);
+}
 
 function previewTheme(radio) { document.documentElement.style.setProperty('--hue', radio.value); }
 function previewImage(event) { const r = new FileReader(); r.onload = function(){ document.getElementById('avatar-preview').src = r.result; }; r.readAsDataURL(event.target.files[0]); }
