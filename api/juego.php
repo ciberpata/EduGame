@@ -26,7 +26,22 @@ try {
 
 function unirsePartida($db, $data) {
     $pin = $data['pin'];
-    $nick = trim($data['nick']);
+    $idUsuarioRegistrado = $_SESSION['user_id'] ?? 0;
+    
+    // Si el usuario está registrado, intentamos recuperar su Nick y Avatar del perfil
+    if ($idUsuarioRegistrado > 0) {
+        $stmtU = $db->prepare("SELECT nick, avatar_id FROM usuarios WHERE id_usuario = ?");
+        $stmtU->execute([$idUsuarioRegistrado]);
+        $uProfile = $stmtU->fetch(PDO::FETCH_ASSOC);
+        
+        $nick = !empty($uProfile['nick']) ? $uProfile['nick'] : trim($data['nick']);
+        $avatarId = ($uProfile['avatar_id'] > 0) ? $uProfile['avatar_id'] : 0;
+    } else {
+        $nick = trim($data['nick']);
+        $avatarId = 0; 
+    }
+
+    if (empty($nick)) throw new Exception("Debes introducir un apodo.");
     
     $stmt = $db->prepare("SELECT id_partida, estado, id_anfitrion FROM partidas WHERE codigo_pin = ? AND estado IN ('sala_espera', 'creada')");
     $stmt->execute([$pin]);
@@ -38,14 +53,16 @@ function unirsePartida($db, $data) {
     $stmtNick->execute([$partida['id_partida'], $nick]);
     if ($stmtNick->fetchColumn() > 0) throw new Exception("Ese nombre ya está en uso.");
 
-    // --- CORRECCIÓN: Capturar el ID del alumno logueado ---
-    $idUsuarioRegistrado = $_SESSION['user_id'] ?? 0;
-
-    $sql = "INSERT INTO jugadores_sesion (id_partida, nombre_nick, avatar_id, ip, id_usuario_registrado) VALUES (?, ?, 0, ?, ?)";
-    $db->prepare($sql)->execute([$partida['id_partida'], $nick, $_SERVER['REMOTE_ADDR'], $idUsuarioRegistrado]);
+    $sql = "INSERT INTO jugadores_sesion (id_partida, nombre_nick, avatar_id, ip, id_usuario_registrado) VALUES (?, ?, ?, ?, ?)";
+    $db->prepare($sql)->execute([$partida['id_partida'], $nick, $avatarId, $_SERVER['REMOTE_ADDR'], $idUsuarioRegistrado]);
     $idSesion = $db->lastInsertId();
     
-    echo json_encode(['success' => true, 'id_sesion' => $idSesion, 'id_partida' => $partida['id_partida']]);
+    echo json_encode([
+        'success' => true, 
+        'id_sesion' => $idSesion, 
+        'id_partida' => $partida['id_partida'], 
+        'has_avatar' => ($avatarId > 0)
+    ]);
 }
 
 function seleccionarAvatar($db, $data) {
@@ -190,3 +207,4 @@ function obtenerEstado($db, $idSesion) {
     
     echo json_encode(['success' => true, 'data' => $data]);
 }
+?>

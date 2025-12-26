@@ -316,6 +316,8 @@ function actualizarPerfilPropio($db, $uid) {
     $nombre = $_POST['nombre'] ?? '';
     $idioma = $_POST['idioma_pref'] ?? 'es';
     $tema   = $_POST['tema_pref'] ?? null;
+    $nick   = $_POST['nick'] ?? null;
+    $avatar_id = $_POST['avatar_id'] ?? 1;
     $fotoPath = null;
     
     if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === 0) {
@@ -327,6 +329,10 @@ function actualizarPerfilPropio($db, $uid) {
     $db->beginTransaction();
     $updates = ["nombre = ?", "idioma_pref = ?"];
     $params = [$nombre, $idioma];
+
+    if ($nick !== null) { $updates[] = "nick = ?"; $params[] = $nick; }
+    $updates[] = "avatar_id = ?"; $params[] = (int)$avatar_id;
+
     if ($fotoPath) { $updates[] = "foto_perfil = ?"; $params[] = $fotoPath; }
     if ($tema) { $updates[] = "tema_pref = ?"; $params[] = $tema; }
     if (!empty($_POST['new_password'])) {
