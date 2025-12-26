@@ -1,0 +1,906 @@
+/* 
+RESET ESTILOS ERIC MEYER 
+
+http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* FINAL RESET ESTILOS ERIC MEYER */
+
+:root {
+    /* --- VARIABLES --- */
+    --hue: 210; 
+    --sat: 100%;
+    
+    --primary: hsl(var(--hue), var(--sat), 50%);
+    --primary-hover: hsl(var(--hue), var(--sat), 40%);
+    --primary-light: hsl(var(--hue), var(--sat), 95%);
+    --primary-border: hsl(var(--hue), var(--sat), 85%);
+    --primary-focus: hsl(var(--hue), var(--sat), 50%, 0.3);
+    
+    --bg-body: #f8fafc;
+    --bg-surface: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    
+    --radius: 0.5rem;
+    --danger-color: #ef4444;
+    --success-color: #22c55e;
+    
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    
+    --header-height: 64px;
+    --sidebar-width: 260px;
+}
+
+/* --- MODO NOCHE --- */
+body.dark {
+    --bg-body: #0f172a;
+    --bg-surface: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --primary-light: hsl(var(--hue), var(--sat), 20%);
+    --primary-border: hsl(var(--hue), var(--sat), 30%);    
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+}
+
+/* RESET ESTRUCTURAL ESTRICTO */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Regla de Oro para evitar desbordamientos de gráficos/imágenes */
+img, svg, video, canvas, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+html {
+    width: 100%;
+    /* Quitamos height: 100% fijo para evitar doble scrollbar en escritorio */
+    overflow-x: hidden; 
+}
+
+body {
+    margin: 0; padding: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.6;
+    font-size: 16px;
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden; /* Seguridad extra */
+    position: relative;
+}
+
+/* =========================================
+   1. LAYOUT PRINCIPAL
+   ========================================= */
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border-color);
+    display: flex; flex-direction: column;
+    height: 100vh; /* Fallback */
+    height: 100dvh; /* Altura dinámica para móviles modernos */
+    width: var(--sidebar-width);
+    position: fixed; top: 0; left: 0; z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    /* Espacio extra abajo para que Firefox Móvil no tape el último menú */
+    padding-bottom: 120px; 
+}
+
+/* Header Configuración Base */
+.top-header {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    height: var(--header-height);
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 1.5rem;
+    position: sticky; top: 0; z-index: 800;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible; 
+}
+
+/* Sección Izquierda del Header */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1; 
+    min-width: 0; 
+}
+
+/* Sección Derecha del Header */
+.header-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    margin-left: auto; 
+}
+
+.header-page-title { 
+    font-size: 1.25rem; 
+    margin: 0; 
+    font-weight: 700; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+.header-page-title i {
+    margin-right: 8px;
+    color: var(--primary);
+}
+
+/* Contenido Principal */
+.main-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    padding: 2rem; 
+    padding-top: 0;
+    min-height: calc(100vh - var(--header-height));
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    max-width: 100%; /* Vital para contener hijos */
+    overflow-x: hidden; /* Cortafuegos final */
+}
+
+.sidebar-overlay {
+    display: none; position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 900;
+    backdrop-filter: blur(2px);
+}
+
+.nav-item {
+    width: 100%; padding: 0.75rem 1.5rem;
+    border: none; background: transparent;
+    text-align: left; color: var(--text-muted);
+    cursor: pointer; display: flex; align-items: center;
+    transition: all 0.2s; border-right: 3px solid transparent;
+    text-decoration: none; font-size: 1rem;
+}
+.nav-item:hover { color: var(--primary); background-color: var(--bg-body); }
+.nav-item.active { background-color: var(--primary-light); color: var(--primary); border-right-color: var(--primary); font-weight: 600; }
+.nav-item i { width: 24px; margin-right: 10px; text-align: center; font-size: 1.1rem; }
+
+/* =========================================
+   2. COMPONENTES BASE
+   ========================================= */
+
+/* --- HEADER COMPONENTS (V4) --- */
+
+.btn-mini {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 1rem;
+    text-decoration: none !important;
+}
+.btn-mini:hover { background: rgba(0,0,0,0.05); }
+
+a.btn-logout-custom,
+a.btn-logout-custom:hover, 
+a.btn-logout-custom:visited {
+    text-decoration: none !important;
+    border-bottom: none !important;
+    color: var(--danger-color) !important;
+}
+
+/* Menús Desplegables */
+.dropdown-wrapper { position: relative; }
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 115%; 
+    right: 0; 
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    padding: 8px;
+    z-index: 9999;
+    min-width: 130px;
+}
+.dropdown-content.show { display: block; animation: fadeIn 0.2s ease-out; }
+
+.mini-menu a {
+    display: block; padding: 8px 12px;
+    text-decoration: none; color: var(--text-main);
+    font-size: 0.9rem; border-radius: 4px;
+}
+.mini-menu a:hover { background-color: var(--primary-light); }
+
+.color-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dropdown-content.color-grid.show { display: grid; }
+.color-dot { width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- GENERAL UI --- */
+
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color); border-radius: var(--radius);
+    padding: 1.5rem; box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--primary);
+    width: 100%; margin-bottom: 1.5rem; position: relative;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.btn-primary {
+    background-color: var(--primary); color: white;
+    border: 1px solid var(--primary);
+    padding: 0.6rem 1.2rem; border-radius: var(--radius);
+    font-weight: 500; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    text-decoration: none; transition: all 0.2s; font-size: 0.95rem;
+}
+.btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); transform: translateY(-1px); }
+
+.btn-icon {
+    background: var(--bg-surface); border: 1px solid transparent;
+    cursor: pointer; padding: 0.5rem; border-radius: 50%;
+    color: var(--text-muted);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.2s; width: 36px; height: 36px;
+}
+.btn-icon:hover { background-color: var(--primary-light); color: var(--primary); border-color: var(--primary-border); }
+
+.form-control {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.6rem 1rem; border-radius: var(--radius);
+    width: 100%; font-size: 1rem; transition: border-color 0.2s;
+    max-width: 100%;
+}
+.form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-focus); }
+
+/* --- TABLAS --- */
+.table-container {
+    background-color: var(--bg-surface); 
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); 
+    border: 1px solid var(--border-color);
+    width: 100%; 
+    margin-bottom: 1rem;
+    overflow-x: auto; 
+    display: block; 
+    max-width: 100%; 
+    -webkit-overflow-scrolling: touch; 
+}
+table { width: 100%; border-collapse: collapse; min-width: 800px; }
+th { background-color: var(--primary-light); color: var(--primary); text-align: left; padding: 1rem; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; }
+td { padding: 1rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; }
+
+/* --- DIAGNOSTICO UI (NUEVO) --- */
+.diagnosis-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn-diagnosis {
+    flex: 1; 
+    min-width: 200px;
+    padding: 15px;
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.btn-diagnosis i { font-size: 1.5rem; color: var(--text-muted); }
+
+.btn-diagnosis:hover, .btn-diagnosis.active {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.btn-diagnosis.active i { color: var(--primary); }
+
+.alert-box {
+    padding: 15px;
+    border-radius: var(--radius);
+    background: #f1f5f9;
+    border-left: 4px solid var(--primary);
+    margin-bottom: 20px;
+}
+.alert-danger { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+.alert-info { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+.badge {
+    background: var(--primary); color: white;
+    padding: 2px 8px; border-radius: 10px;
+    font-size: 0.8rem; vertical-align: middle;
+}
+
+/* =========================================
+   3. OTROS ESTILOS DE VISTAS
+   ========================================= */
+
+/* Pestañas */
+.tabs-header {
+    display: flex; gap: 10px; margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto; white-space: nowrap;
+    padding-bottom: 5px; width: 100%;
+}
+.tabs-header::-webkit-scrollbar { height: 0px; background: transparent; }
+
+.tab-btn {
+    padding: 10px 15px; background: none; border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted); cursor: pointer;
+    font-weight: 500; font-size: 1rem; flex-shrink: 0; 
+}
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+
+/* Grid Colores */
+.theme-selector-grid { 
+    display: flex; gap: 15px; flex-wrap: wrap; margin-top: 1rem; 
+    justify-content: center; 
+}
+.color-option { 
+    text-align: center; width: 80px; cursor: pointer; 
+    display: flex; flex-direction: column; align-items: center; 
+}
+.color-circle-large { 
+    width: 50px; height: 50px; border-radius: 50%; 
+    border: 3px solid transparent; transition: transform 0.2s; 
+    cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    margin-bottom: 5px; flex-shrink: 0; display: inline-block; 
+}
+.color-option input:checked + .color-circle-large { transform: scale(1.15); border-color: var(--text-main); box-shadow: var(--shadow-lg); }
+
+/* Login */
+.centered-layout { display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%; padding: 1rem; background-color: var(--bg-body); }
+.login-container { width: 100%; max-width: 420px; background: var(--bg-surface); padding: 2.5rem; border-radius: var(--radius); box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); position: relative; }
+.login-header-wrapper { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 2rem; }
+.login-logo-circle { width: 80px; height: 80px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 40px; box-shadow: var(--shadow-sm); }
+.login-brand-title { color: var(--primary); font-weight: 800; margin: 0; letter-spacing: -0.5px; font-size: 2rem; }
+.login-alert { background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; text-align: center; border: 1px solid #fecaca; }
+.btn-full-width { width: 100%; display: flex; justify-content: center; padding: 0.8rem; font-size: 1rem; }
+
+/* Dashboard Utils */
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; max-width: 100%; }
+.welcome-title { font-size: 1.75rem; color: var(--primary); margin: 0; font-weight: 800; line-height: 1.2; }
+.search-bar-wrapper { display: flex; gap: 10px; margin-bottom: 10px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.stat-card { display: flex; align-items: center; justify-content: space-between; border-left-width: 4px; border-left-style: solid; }
+.stat-info h3 { font-size: 2.2rem; margin: 0; font-weight: 800; color: var(--text-main); }
+.stat-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; }
+.stat-blue { border-left-color: #3b82f6; } .stat-blue .stat-icon { background: #eff6ff; color: #3b82f6; }
+.stat-green { border-left-color: #22c55e; } .stat-green .stat-icon { background: #f0fdf4; color: #22c55e; }
+.stat-purple { border-left-color: #a855f7; } .stat-purple .stat-icon { background: #faf5ff; color: #a855f7; }
+
+.text-center { text-align: center; } .text-right { text-align: right; }
+.text-muted { color: var(--text-muted); } .text-danger { color: var(--danger-color); }
+.hidden { display: none !important; }
+
+/* Juegos */
+.game-card { border-left: 5px solid var(--primary); transition: transform 0.2s, box-shadow 0.2s; position: relative; background: white; padding-bottom: 60px; }
+.game-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; letter-spacing: 0.5px; }
+.st-creada { background: #e0f2fe; color: #0369a1; }
+.st-sala_espera { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+.st-jugando { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.st-finalizada { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+.pin-display { font-family: 'Courier New', monospace; font-size: 1.5rem; font-weight: 800; background: var(--bg-body); padding: 5px 12px; border-radius: 6px; display: inline-block; margin-top: 8px; letter-spacing: 2px; border: 1px dashed var(--border-color); }
+.card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
+.card-footer-action { position: absolute; bottom: 15px; right: 15px; }
+.active-games-card { background: var(--success-color); color: white; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; border: none; text-align: left; }
+
+.builder-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 400px; }
+.builder-col { display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-body); overflow: hidden; height: 100%; }
+.builder-header { padding: 12px; background: white; border-bottom: 1px solid var(--border-color); font-weight: bold; color: var(--text-main); }
+.builder-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; }
+.q-card { background: white; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: grab; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+.mobile-only { display: none !important; }
+
+/* Filtros */
+.quick-filters-bar {
+    display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
+    padding: 10px; background: var(--bg-body); border-radius: var(--radius);
+    border: 1px solid var(--border-color); align-items: center;
+    max-width: 100%;
+}
+.btn-quick-filter {
+    border: 1px solid var(--border-color); background: var(--bg-surface);
+    padding: 6px 14px; border-radius: 20px; font-size: 0.9rem;
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+    color: var(--text-muted); transition: all 0.2s;
+}
+.btn-quick-filter.active {
+    background-color: var(--primary) !important; color: white !important;
+    border-color: var(--primary) !important; font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Modales */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 3000;
+    backdrop-filter: blur(2px);
+}
+.modal.active { opacity: 1; pointer-events: all; }
+.modal-content {
+    background: var(--bg-surface); padding: 2rem; border-radius: var(--radius);
+    width: 100%; max-width: 800px; box-shadow: var(--shadow-lg);
+    max-height: 85vh; overflow-y: auto; display: block; position: relative;
+    max-width: 95%; /* Margen en móviles */
+}
+.modal-content.modal-xl { max-width: 1100px; height: 90vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.modal-content.modal-xl form { padding: 1.5rem; overflow-y: auto; flex: 1; }
+.modal-content.modal-xl h3 { padding: 1.5rem; margin: 0; border-bottom: 1px solid var(--border-color); background: var(--bg-body); }
+.modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.modal-fiscal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-section-title { color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 1rem; font-size: 1.1rem; font-weight: bold; }
+.modal-footer-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+.btn-modal-cancel { border: 1px solid var(--border-color); border-radius: var(--radius); width: auto; padding: 0.6rem 1.2rem; }
+
+/* 3. Panel de Búsqueda  de filtros. 
+Si se sacan estas reglas falla el boton del filtro (no pliega / despliega)
+*/
+.search-panel { margin-bottom: 1.5rem; }
+.search-bar-wrapper { display: flex; gap: 10px; margin-bottom: 10px; }
+.advanced-search { display: none; background: var(--bg-body); padding: 1.5rem; border-radius: var(--radius); margin-top: 0.5rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; border: 1px solid var(--border-color); }
+.advanced-search.open { display: grid !important; }
+
+/* 4. Tabla y Detalles */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Vital para móvil */
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+}
+
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { background-color: rgba(0,0,0,0.05); }
+
+.log-details {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.log-details span { margin-right: 10px; display: inline-block; }
+.log-details b { color: var(--text-main); }
+
+/* 5. Paginación */
+.pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+.limit-select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+.pagination-controls {
+    display: flex;
+    align-items: center;
+}
+.page-info { margin: 0 10px; }
+
+/* =========================================================
+   --- ESTILOS PARA VISTA DIAGNÓSTICO (V7 - FIX ANCHO) ---
+   ========================================================= */
+
+/* Tabla específica para diagnóstico que SE ADAPTA al ancho (sin scroll) */
+.diag-table {
+    width: 100% !important;
+    min-width: 0 !important; /* <--- ESTO SOLUCIONA EL PROBLEMA DEL DESBORDAMIENTO */
+    border-collapse: collapse;
+    table-layout: fixed; /* Fuerza a las columnas a repartirse el espacio disponible */
+}
+
+.diag-table th, 
+.diag-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    vertical-align: middle;
+    /* Asegura que el texto baje de línea si es largo */
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+}
+
+.diag-table th {
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: transparent; /* Quitar fondo si lo hereda */
+}
+
+/* Anchos de columnas relativos */
+.diag-col-name { width: 70%; }
+.diag-col-val { width: 30%; text-align: right; font-weight: bold; }
+
+/* Contenedor de acciones (Botones) */
+.diag-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap; /* Permite que bajen de línea */
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* Consola SQL */
+.diag-console {
+    margin-top: 15px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.85rem;
+    background-color: var(--bg-body);
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-family: monospace;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* =========================================================
+   --- ESTILOS VISTA LIMPIEZA (V9) ---
+   ========================================================= */
+
+/* Cabecera de sección */
+.clean-header {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+/* Grid layout específico que pasa a 1 columna en móvil */
+.clean-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start; /* Alineación superior */
+}
+
+/* Caja de Advertencia (Naranja) */
+.clean-warning-box {
+    background: #fff7ed;
+    border-left: 4px solid #f97316;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.clean-warning-title {
+    margin: 0 0 10px 0;
+    color: #c2410c;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.clean-warning-list {
+    font-size: 0.9rem;
+    padding-left: 20px;
+    color: #9a3412;
+    margin: 0;
+}
+
+/* Consola Oscura */
+.clean-console-box {
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    font-family: 'Courier New', monospace;
+    border: 1px solid #334155;
+}
+
+.clean-console-header {
+    margin-top: 0;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: #f8fafc;
+    font-weight: bold;
+}
+
+.clean-console-output {
+    height: 300px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    scrollbar-width: thin;
+    scrollbar-color: #475569 #1e293b;
+}
+
+/* Input groups flexibles */
+.input-group-flex {
+    display: flex; 
+    gap: 10px;
+}
+
+/* Botón de acción peligroso */
+.btn-danger-custom {
+    background-color: var(--danger-color);
+    border: none;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+    font-size: 1rem;
+}
+.btn-danger-custom:hover {
+    background-color: #dc2626; /* Un rojo un poco más oscuro */
+}
+
+/* =========================================
+   MEDIA QUERIES (RESPONSIVE)
+   ========================================= */
+
+/* 1024px: Landscape Tablets */
+@media (max-width: 1024px) {
+    .mobile-only { display: inline-block !important; margin-right: 5px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-main); }
+    
+    .sidebar { transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar.active + .sidebar-overlay { display: block; }
+    
+    .main-content { margin-left: 0; width: 100%; max-width: 100%; padding: 1rem; padding-bottom: 80px; }
+    
+    .builder-container { height: auto; display: block; }
+    .builder-list { max-height: 300px; margin-bottom: 20px; }
+    
+    .theme-selector-grid { justify-content: center; gap: 10px; }
+    table { min-width: 800px; }
+    td, th { padding: 0.75rem; font-size: 0.85rem; }
+}
+
+/* ============================================================
+   SOLUCIÓN DEFINITIVA: MOBILE LAYOUT & HEADER FIX V4
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    /* HEADER */
+    .top-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0 10px !important;
+        height: 60px !important;
+        overflow: visible !important;
+    }
+    .header-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex: 1; min-width: 0; margin-right: 5px;
+    }
+    #sidebarToggle { display: flex !important; font-size: 1.2rem; padding: 5px; }
+    .header-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        margin-left: auto !important;
+        flex-shrink: 0;
+    }
+    .btn-mini { width: 34px !important; height: 34px !important; font-size: 1rem !important; }
+    .header-page-title { font-size: 0.9rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dropdown-content { top: 50px !important; right: -5px !important; width: 140px; }
+
+    /* LAYOUT GENERAL */
+    .main-content { padding: 10px 15px; width: 100%; overflow-x: hidden; }
+
+    .dashboard-grid, .stats-grid, .builder-container {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 1.5rem !important;
+    }
+
+    /* TARJETAS */
+    .card, .stat-card, .game-card {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: block !important;
+        box-sizing: border-box !important;
+    }
+    .stat-card {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* --- DIAGNÓSTICO EN MÓVIL --- */
+    .btn-diagnosis {
+        width: 100%; 
+        flex: none;
+        flex-direction: row; 
+        justify-content: center;
+    }
+    .btn-diagnosis i { margin-bottom: 0; font-size: 1.2rem; }
+
+    .clean-grid-layout {
+        grid-template-columns: 1fr; /* Una columna en móvil/tablet */
+        gap: 1.5rem;
+    }
+    
+    .clean-console-output {
+        height: 200px; /* Menos altura en móvil */
+    }
+    
+    .input-group-flex {
+        flex-direction: row; /* Mantener en línea si caben */
+    }
+    
+    .btn-danger-custom {
+        width: 100%; /* Botón ancho completo en móvil */
+        justify-content: center;
+    }
+    
+    /* Input de tiempo un poco más ancho en móvil */
+    #timeVal { width: 80px; }
+    
+}
+
+
+/* =========================================
+   --- AJUSTES ESPECÍFICOS DIAGNÓSTICO (V6) ---
+   ========================================= */
+
+/* Ajuste para que las tablas de diagnóstico no revienten la tarjeta en móvil */
+@media (max-width: 768px) {
+    .diag-card .table-container {
+        margin-bottom: 0; /* Quitar margen extra */
+        border: none; /* Quitar borde del contenedor para que se funda con la tarjeta */
+        box-shadow: none;
+    }
+
+    /* Reducir fuente solo en las tablas de diagnóstico para que quepa más info */
+    .diag-card table td, 
+    .diag-card table th {
+        padding: 0.5rem;
+        font-size: 0.75rem; /* Texto más pequeño en móvil */
+    }
+    
+    /* Ajuste para listas de ítems si las hubiera */
+    .diag-card ul, .diag-card li {
+        font-size: 0.85rem;
+    }
+}
+
+
+/* --- AJUSTES MÓVILES EXTREMOS --- */
+@media (max-width: 600px) {
+    .diag-card { 
+        padding: 1rem !important; 
+    }
+    
+    .diag-table th, 
+    .diag-table td { 
+        padding: 8px 4px; 
+        font-size: 0.85rem; 
+    }
+    
+    /* Botones e inputs ocupan todo el ancho para ser fáciles de tocar */
+    .diag-actions input,
+    .diag-actions button {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}
+
+
+/* Ajustes específicos para móviles */
+@media (max-width: 480px) {
+    .diag-card { 
+        padding: 1rem !important; /* Reduce padding para ganar espacio */
+    }
+    
+    .diag-table th, 
+    .diag-table td { 
+        font-size: 0.8rem; 
+        padding: 6px 4px; 
+    }
+    
+    /* En móvil, los inputs ocupan todo el ancho para ser pulsables */
+    .diag-actions input {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+    .diag-actions button {
+        flex: 1 1 100%; 
+        width: 100%;
+    }
+}

@@ -1,0 +1,543 @@
+<?php
+// play/index.php
+$frases_file = __DIR__ . '/../locales/frases.json';
+$frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}';
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EduGame - Jugar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* TEMA MODERNO - ESTILO KAHOOT */
+        :root { 
+            --bg-gradient: linear-gradient(135deg, #46178f 0%, #25076b 100%);
+            --primary: #333; 
+            --white: #ffffff;
+            --correct: #66bf39;
+            --wrong: #ff3355;
+            --btn-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+        
+        * { box-sizing: border-box; }
+
+        body { 
+            margin:0; 
+            font-family:'Montserrat', sans-serif; 
+            background: var(--bg-gradient);
+            display:flex; 
+            flex-direction:column; 
+            min-height:100vh; 
+            overflow-x: hidden; 
+            color: var(--white); 
+        }
+        
+        /* PANTALLAS */
+        .screen { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            width: 100%; 
+            padding: 20px; 
+            padding-bottom: 80px; /* Espacio para footer */
+            animation: fadeIn 0.3s ease;
+        }
+        .screen.active { display: flex; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* LOGIN & INPUTS */
+        .logo-title { font-size: 3rem; font-weight: 900; margin-bottom: 20px; text-shadow: 2px 2px 0 rgba(0,0,0,0.2); letter-spacing: 2px; }
+        
+        .login-box { 
+            background: var(--white); 
+            padding: 30px; 
+            border-radius: 15px; 
+            width: 100%; 
+            max-width: 400px; 
+            text-align:center; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+            color: var(--primary);
+        }
+        
+        /* Input PIN tipo texto para evitar spinners feos pero teclado numérico */
+        input { 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 2px solid #ddd; 
+            width: 100%; 
+            font-size: 1.2rem; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            font-weight: 800; 
+            background: #f9fafb; 
+            color: #333;
+            transition: 0.2s;
+        }
+        input:focus { outline: none; border-color: #46178f; background: white; }
+        
+        .btn-play { 
+            background: #333; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 1.1rem; 
+            font-weight: 800; 
+            width: 100%; 
+            cursor: pointer; 
+            box-shadow: 0 4px 0 #000; 
+            transition: transform 0.1s; 
+            margin-top: 10px; 
+        }
+        .btn-play:active { transform: translateY(4px); box-shadow: none; }
+
+        /* SELECTOR IDIOMA */
+        .lang-selector { margin-bottom: 20px; }
+        .lang-selector select { padding: 8px 15px; border-radius: 20px; border: none; background: rgba(255,255,255,0.2); color: white; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px); }
+        .lang-selector select option { color: #333; }
+
+        /* BARRA INFERIOR DEL JUGADOR */
+        .player-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 100;
+        }
+        .pf-left { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.1rem; }
+        .pf-avatar { font-size: 1.8rem; }
+        .pf-score { background: var(--white); color: #333; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* HEADER SUPERIOR */
+        .top-status {
+            position: absolute; top: 15px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        .q-bubble { background: var(--white); color: #333; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; box-shadow: 0 2px 0 rgba(0,0,0,0.2); font-size: 1.1rem; }
+        .timer-display { font-size: 1.5rem; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+
+        /* FEEDBACK */
+        .feedback-container { text-align: center; width: 100%; max-width: 500px; animation: popIn 0.3s; }
+        @keyframes popIn { from { transform: scale(0.8); opacity:0; } to { transform: scale(1); opacity:1; } }
+
+        .feedback-banner { background: var(--correct); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .feedback-banner.wrong { background: var(--wrong); }
+        .fb-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
+        .fb-icon { font-size: 5rem; display: block; margin: 10px 0; }
+        
+        .streak-box { background: rgba(0,0,0,0.3); padding: 15px 30px; border-radius: 15px; margin-top: 20px; display: inline-block; min-width: 200px; backdrop-filter: blur(5px); }
+        .motivation-msg { margin-top: 30px; font-size: 1.3rem; font-style: italic; opacity: 0.9; font-weight: 600; }
+
+        /* BOTONES JUEGO */
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 600px; height: 50vh; margin-top: 20px; }
+        .game-btn { border: none; border-radius: 10px; cursor: pointer; color: white; font-size: 1.1rem; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow: 0 6px 0 rgba(0,0,0,0.2); transition: transform 0.1s; position: relative; padding: 10px; }
+        .game-btn:active { transform: translateY(4px); box-shadow: none; }
+        .shape-icon { font-size: 2.5rem; margin-bottom: 8px; }
+        .btn-text { font-weight: 700; line-height: 1.2; }
+        
+        .bg-0 { background-color: #e21b3c; } /* Rojo */
+        .bg-1 { background-color: #1368ce; } /* Azul */
+        .bg-2 { background-color: #d89e00; } /* Amarillo */
+        .bg-3 { background-color: #26890c; } /* Verde */
+
+        /* AVATARES */
+        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width:100%; max-height: 50vh; overflow-y: auto; padding: 5px; }
+        .avatar-card { background: var(--white); padding: 10px; border-radius: 10px; font-size: 2.5rem; cursor: pointer; border: 4px solid transparent; transition: transform 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        .avatar-card:hover { transform: translateY(-2px); }
+        .avatar-card.selected { border-color: #46178f; background: #e0f2fe; transform: scale(0.95); box-shadow: none; }
+
+        /* PREGUNTA TEXTO (Opcional en móvil) */
+        .mobile-q-text { background: var(--white); color: #333; padding: 15px; border-radius: 10px; font-weight: bold; margin-bottom: 15px; text-align: center; width: 100%; max-width: 600px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); font-size: 1.1rem; display: none; }
+        
+        /* ESPERA */
+        .wait-animation { font-size: 5rem; margin-bottom: 20px; animation: bounce 1s infinite alternate; }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+
+        /* PANTALLA FINAL */
+        #screen-end .login-box { max-width: 500px; padding: 40px; }
+        .podium-row { display: flex; justify-content: space-between; padding: 15px 10px; border-bottom: 1px solid #eee; align-items: center; font-size: 1.1rem; }
+        .rank-medal { font-size: 1.5rem; width: 40px; text-align: center; }
+
+    </style>
+</head>
+<body>
+
+    <div id="screen-login" class="screen active">
+        <div class="lang-selector">
+            <select id="langSelect" onchange="changeLanguage()">
+                <option value="es">🇪🇸 Español</option>
+                <option value="gl">🇪🇸 Galego</option>
+                <option value="en">🇬🇧 English</option>
+            </select>
+        </div>
+        <div class="logo-title">EduGame</div>
+        <div class="login-box">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="inputPin" placeholder="PIN" maxlength="6" autocomplete="off">
+            <input type="text" id="inputNick" placeholder="Nick" maxlength="15">
+            <button class="btn-play" onclick="step1Login()" id="btnEnter">Entrar</button>
+        </div>
+    </div>
+
+    <div id="screen-avatar" class="screen">
+        <h2 id="txtChooseAvatar">Elige tu personaje</h2>
+        <div class="avatar-grid" id="avatarList"></div>
+        <button class="btn-play" style="max-width: 200px; margin-top:20px;" onclick="step2Avatar()" id="btnConfirmAvatar">¡Listo!</button>
+    </div>
+
+    <div id="screen-wait" class="screen">
+        <div class="top-status">
+            <div class="q-bubble" id="waitQNum">#</div>
+        </div>
+        
+        <div style="text-align: center; width: 100%;">
+            <div class="wait-animation">👀</div>
+            <div style="font-size: 2rem; font-weight: 800; margin-bottom: 10px;" id="waitText">Ya estás dentro</div>
+            <div style="font-size: 1.2rem; opacity: 0.8;" id="waitSubText">Mira la pantalla</div>
+        </div>
+    </div>
+
+    <div id="screen-play" class="screen">
+        <div class="top-status">
+            <div class="q-bubble" id="playQNum">1</div>
+            <div class="timer-display" id="timer"></div> 
+        </div>
+        
+        <div class="mobile-q-text" id="playerQuestionText"></div>
+
+        <div class="game-grid" id="gameButtonsContainer">
+            </div>
+    </div>
+
+    <div id="screen-feedback" class="screen">
+        <div class="feedback-container">
+            <div class="feedback-banner" id="fbBanner">
+                <div class="fb-title" id="fbTitle">Correcto</div>
+                <i class="fa-solid fa-check fb-icon" id="fbIcon"></i>
+            </div>
+            
+            <div class="streak-box">
+                <div style="font-size:0.9rem; margin-bottom:5px;" id="txtStreak">Racha</div>
+                <div style="font-size:2rem; font-weight:bold;">
+                    <span class="streak-fire">🔥</span> <span id="fbStreak">0</span>
+                </div>
+            </div>
+
+            <div class="motivation-msg" id="fbMsg">...</div>
+        </div>
+    </div>
+
+    <div id="screen-end" class="screen">
+        <div class="login-box" style="background: rgba(255,255,255,0.95);">
+            <h1 style="color:#46178f; margin-top:0;" id="txtGameOver">Fin</h1>
+            <div style="font-size:1.2rem; color:#666;" id="txtFinalScore">Puntuación Final</div>
+            <div style="font-size:3.5rem; font-weight:900; color:#46178f; margin: 10px 0;" id="finalScoreDisplay">0</div>
+            
+            <div id="top3List" style="text-align:left; margin-top:20px; border-top:1px solid #eee; padding-top:10px;"></div>
+            
+            <a href="../partidas" class="btn-play" style="text-decoration:none; display:block; margin-top:30px;" id="btnExit">Salir</a>
+        </div>
+    </div>
+
+    <div class="player-footer" id="playerFooter" style="display:none;">
+        <div class="pf-left">
+            <span class="pf-avatar" id="myAvatarDisplay">👤</span>
+            <span id="myNickDisplay">Jugador</span>
+        </div>
+        <div class="pf-score" id="myScoreDisplay">0</div>
+    </div>
+
+<script>
+    // --- 1. CONFIGURACIÓN IDIOMAS ---
+    const FRASES = <?php echo $frases_json; ?>;
+    
+    const UI_TEXTS = {
+        es: { 
+            pin: "PIN de Juego", nick: "Tu Apodo", enter: "Entrar", choose: "Elige tu personaje", ready: "¡Listo!", 
+            wait: "Ya estás dentro", wait_sub: "Mira la pantalla", q: "Pregunta", sent: "Respuesta Enviada", 
+            wait_others: "Espera a los demás...", correct: "¡Correcto!", wrong: "Incorrecto", streak: "Racha", 
+            game_over: "¡Fin de la Partida!", score: "Puntuación Final", exit: "Salir" 
+        },
+        gl: { 
+            pin: "PIN do Xogo", nick: "O teu Apodo", enter: "Entrar", choose: "Elixe o teu personaxe", ready: "¡Listo!", 
+            wait: "Xa estás dentro", wait_sub: "Mira a pantalla", q: "Pregunta", sent: "Resposta Enviada", 
+            wait_others: "Agarda polos demais...", correct: "¡Correcto!", wrong: "Incorrecto", streak: "Racha", 
+            game_over: "¡Fin da Partida!", score: "Puntuación Final", exit: "Saír" 
+        },
+        en: { 
+            pin: "Game PIN", nick: "Nickname", enter: "Enter", choose: "Choose your character", ready: "Ready!", 
+            wait: "You're in!", wait_sub: "See your name on screen?", q: "Question", sent: "Answer Sent", 
+            wait_others: "Wait for others...", correct: "Correct!", wrong: "Incorrect", streak: "Streak", 
+            game_over: "Game Over!", score: "Final Score", exit: "Exit" 
+        }
+    };
+
+    let currentLang = 'es';
+
+    function changeLanguage() {
+        const sel = document.getElementById('langSelect');
+        currentLang = sel.value;
+        const t = UI_TEXTS[currentLang];
+        
+        document.getElementById('inputPin').placeholder = t.pin;
+        document.getElementById('inputNick').placeholder = t.nick;
+        document.getElementById('btnEnter').innerText = t.enter;
+        document.getElementById('txtChooseAvatar').innerText = t.choose;
+        document.getElementById('btnConfirmAvatar').innerText = t.ready;
+        document.getElementById('txtStreak').innerText = t.streak;
+        document.getElementById('txtGameOver').innerText = t.game_over;
+        document.getElementById('txtFinalScore').innerText = t.score;
+        document.getElementById('btnExit').innerText = t.exit;
+    }
+
+    // --- 2. VARS JUEGO ---
+    const SHAPES = ['▲', '◆', '●', '■'];
+    const AVATARS = [
+        {id:1, i:'🛡️'}, {id:2, i:'⚔️'}, {id:3, i:'🗡️'},
+        {id:4, i:'🏛️'}, {id:5, i:'🏹'}, {id:6, i:'🔮'},
+        {id:7, i:'🥷'}, {id:8, i:'🏴‍☠️'}, {id:9, i:'🌿'},
+        {id:10, i:'⚜️'}, {id:11, i:'🤖'}, {id:12, i:'👽'},
+        {id:13, i:'🦊'}, {id:14, i:'🦁'}, {id:15, i:'🦄'}
+    ];
+    function getAvatarIcon(id) { const a = AVATARS.find(x=>x.id==id); return a ? a.i : '👤'; }
+
+    let mySessionId = null;
+    let gamePartidaId = null;
+    let selectedAvatarId = null;
+    let lastPhase = '';
+    let currentScore = 0;
+    let myNick = '';
+
+    const grid = document.getElementById('avatarList');
+    AVATARS.forEach(av => {
+        grid.innerHTML += `<div class="avatar-card" onclick="selectAvatar(${av.id}, this)">${av.i}</div>`;
+    });
+
+    function selectAvatar(id, el) {
+        selectedAvatarId = id;
+        document.querySelectorAll('.avatar-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    // --- 3. LÓGICA ---
+
+    async function step1Login() {
+        const pin = document.getElementById('inputPin').value;
+        const nick = document.getElementById('inputNick').value;
+        if(!pin || !nick) return alert("Faltan datos");
+        myNick = nick;
+        try {
+            // --- CORRECCIÓN CLAVE: credentials: 'include' ---
+            // Esto asegura que se envíe la sesión PHP y se guarde el ID del alumno
+            const res = await fetch('../api/juego.php', { 
+                method: 'POST', 
+                credentials: 'include', 
+                body: JSON.stringify({action:'unirse', pin, nick}) 
+            });
+            
+            const json = await res.json();
+            if(json.success) { 
+                mySessionId = json.id_sesion; 
+                gamePartidaId = json.id_partida;
+                showScreen('screen-avatar'); 
+                document.getElementById('myNickDisplay').innerText = myNick;
+            } 
+            else { alert(json.error); }
+        } catch(e) { console.error(e); alert("Error de conexión"); }
+    }
+
+    async function step2Avatar() {
+        if(!selectedAvatarId) return alert(UI_TEXTS[currentLang].choose);
+        document.getElementById('btnConfirmAvatar').disabled = true;
+        try {
+            const res = await fetch('../api/juego.php', { method: 'POST', body: JSON.stringify({action:'seleccionar_avatar', id_sesion:mySessionId, avatar_id: selectedAvatarId}) });
+            const json = await res.json();
+            if(json.success) { 
+                document.getElementById('myAvatarDisplay').innerText = getAvatarIcon(selectedAvatarId);
+                document.getElementById('playerFooter').style.display = 'flex'; 
+                showWaitScreen(UI_TEXTS[currentLang].wait, UI_TEXTS[currentLang].wait_sub);
+                startPolling(); 
+            }
+            else { alert(json.error); document.getElementById('btnConfirmAvatar').disabled = false; }
+        } catch(e) { alert("Error"); }
+    }
+
+    function startPolling() {
+        setInterval(async () => {
+            if(!gamePartidaId) return;
+            
+            let gameData = null;
+            let source = 'none';
+
+            // 1. JSON Estático
+            try {
+                const r = await fetch(`../temp/partida_${gamePartidaId}.json?t=${Date.now()}`);
+                if(r.ok) {
+                    const json = await r.json(); // Corregido res -> r
+                    if(json.success) { gameData = json.data; source = 'json'; }
+                }
+            } catch(e) {}
+
+            // 2. Fallback API en momentos clave (resultados)
+            const needScoreUpdate = (gameData && gameData.estado_pregunta === 'resultados' && lastPhase !== 'resultados');
+            
+            if (!gameData || needScoreUpdate) {
+                try {
+                    const res = await fetch('../api/juego.php', {method:'POST', body:JSON.stringify({action:'estado_jugador', id_sesion:mySessionId})});
+                    const json = await res.json();
+                    if(json.success) { gameData = json.data; source = 'api'; }
+                } catch(e){}
+            }
+
+            if(gameData) updateUI(gameData);
+
+        }, 1500); 
+    }
+
+    function updateUI(data) {
+        const t = UI_TEXTS[currentLang];
+
+        if (data.puntuacion !== undefined && data.puntuacion !== null) {
+            currentScore = parseInt(data.puntuacion);
+            document.getElementById('myScoreDisplay').innerText = currentScore;
+        }
+
+        const qIdx = data.pregunta_actual_index || 1;
+        document.getElementById('waitQNum').innerText = "#" + qIdx;
+        document.getElementById('playQNum').innerText = "#" + qIdx;
+
+        // ESTADOS
+        if (data.estado === 'sala_espera') {
+            showWaitScreen(t.wait, t.wait_sub);
+        } 
+        else if (data.estado === 'jugando') {
+            
+            if (data.estado_pregunta === 'intro') {
+                showWaitScreen(t.q + " " + qIdx, t.wait_others);
+            }
+            else if (data.estado_pregunta === 'respondiendo') {
+                const qDiv = document.getElementById('playerQuestionText');
+                if(data.texto_pregunta) {
+                    qDiv.innerText = data.texto_pregunta;
+                    qDiv.style.display = 'block'; 
+                } else {
+                    qDiv.style.display = 'none';
+                }
+                
+                if (lastPhase !== 'respondiendo') {
+                    showScreen('screen-play');
+                    if (data.json_opciones) renderButtons(data.json_opciones); 
+                }
+
+                let left = 0;
+                if (data.tiempo_inicio_pregunta) {
+                    const tStart = data.tiempo_inicio_pregunta.replace(/-/g, "/");
+                    const startTime = new Date(tStart).getTime();
+                    const now = Date.now(); 
+                    const elapsed = Math.floor((now - startTime) / 1000);
+                    const limit = parseInt(data.tiempo_limite);
+                    left = Math.max(0, limit - elapsed);
+                }
+                const timerEl = document.getElementById('timer');
+                if(timerEl) timerEl.innerText = left;
+            }
+            else if (data.estado_pregunta === 'resultados') {
+                if (lastPhase !== 'resultados') {
+                    showScreen('screen-feedback');
+                    
+                    const racha = parseInt(data.racha || 0);
+                    const banner = document.getElementById('fbBanner');
+                    const icon = document.getElementById('fbIcon');
+                    const title = document.getElementById('fbTitle');
+                    const msg = document.getElementById('fbMsg');
+                    const streakDisplay = document.getElementById('fbStreak');
+
+                    streakDisplay.innerText = racha;
+
+                    if (racha > 0) {
+                        banner.className = "feedback-banner";
+                        title.innerText = t.correct;
+                        icon.className = "fa-solid fa-check fb-icon";
+                        msg.innerText = getRandomPhrase('subiendo') || getRandomPhrase('general');
+                    } else {
+                        banner.className = "feedback-banner wrong";
+                        title.innerText = t.wrong;
+                        icon.className = "fa-solid fa-xmark fb-icon";
+                        msg.innerText = getRandomPhrase('bajando') || getRandomPhrase('general');
+                    }
+                }
+            }
+        }
+        else if (data.estado === 'finalizada') {
+            if (lastPhase !== 'finalizada') {
+                showScreen('screen-end');
+                document.getElementById('playerFooter').style.display = 'none';
+                document.getElementById('finalScoreDisplay').innerText = currentScore;
+                
+                if(data.top_ranking) {
+                    let html = '';
+                    data.top_ranking.forEach((p, i) => {
+                       let medal = i===0?'🥇':(i===1?'🥈':'🥉');
+                       html += `<div class="podium-row">
+                                    <span><span class="rank-medal">${medal}</span> <b>${p.nombre_nick}</b></span>
+                                    <b>${p.puntuacion}</b>
+                                </div>`; 
+                    });
+                    document.getElementById('top3List').innerHTML = html;
+                }
+            }
+        }
+        lastPhase = data.estado_pregunta || data.estado; 
+    }
+
+    function renderButtons(jsonStr) {
+        const div = document.getElementById('gameButtonsContainer');
+        div.innerHTML = '';
+        let opts = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+        if(!opts) return;
+        
+        opts.forEach((o, i) => {
+            const shape = SHAPES[i] || '';
+            div.innerHTML += `<button class="game-btn bg-${i}" onclick="answer(${i})">
+                                <span class="shape-icon">${shape}</span>
+                                <span class="btn-text">${o.texto}</span>
+                              </button>`;
+        });
+    }
+
+    async function answer(idx) {
+        const t = UI_TEXTS[currentLang];
+        showWaitScreen(t.sent, t.wait_others);
+        
+        try {
+            await fetch('../api/juego.php', {
+                method:'POST', 
+                body:JSON.stringify({action:'responder', id_sesion:mySessionId, respuesta:{indice:idx}})
+            });
+        } catch(e) {}
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function showWaitScreen(title, sub) {
+        showScreen('screen-wait');
+        document.getElementById('waitText').innerText = title;
+        document.getElementById('waitSubText').innerText = sub;
+    }
+
+    function getRandomPhrase(category) {
+        const list = FRASES[currentLang] ? FRASES[currentLang][category] : (FRASES['es'] ? FRASES['es'][category] : []);
+        if(!list || list.length === 0) return "";
+        return list[Math.floor(Math.random() * list.length)];
+    }
+</script>
+</body>
+</html>

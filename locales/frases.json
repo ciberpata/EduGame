@@ -1,0 +1,20 @@
+{
+    "es": {
+        "top": ["¡Eres un genio!", "¡Imparable!", "¡A la velocidad de la luz!", "¡Sigue así!", "¡Estás en racha!", "¡Dominando el juego!", "¡Nadie te tose!"],
+        "subiendo": ["¡Estás escalando!", "¡Buen trabajo!", "¡Vas mejorando!", "¡Esa era difícil!", "¡Pasito a pasito!", "¡Ahí vamos!"],
+        "bajando": ["¡No te rindas!", "¡Aún puedes remontar!", "Concéntrate ahora", "¡La próxima es tuya!", "¡Respira y sigue!", "No bajes la guardia"],
+        "general": ["¡A por todas!", "¡Tú puedes!", "Respira y responde", "Diviértete aprendiendo", "¡Vamos allá!", "¿Listo para ganar?"]
+    },
+    "gl": {
+        "top": ["¡Es un xenio!", "¡Imparable!", "¡Á velocidade da luz!", "¡Segue así!", "¡Estás en racha!", "¡Dominando o xogo!", "¡Vas coma un foguete!"],
+        "subiendo": ["¡Estás subindo!", "¡Bo traballo!", "¡Vas mellorando!", "¡Esa era difícil!", "¡Pouc a pouco!", "¡Imos alá!"],
+        "bajando": ["¡Non te rindas!", "¡Aínda podes remontar!", "Concéntrate agora", "¡A seguinte é túa!", "¡Respira e segue!", "Non baixes a garda"],
+        "general": ["¡A por todas!", "¡Ti podes!", "Respira e responde", "Divírtete aprendendo", "¡Imos!", "¿Listo para gañar?"]
+    },
+    "en": {
+        "top": ["You're a genius!", "Unstoppable!", "Light speed!", "Keep it up!", "You're on fire!", "Dominating!", "Untouchable!"],
+        "subiendo": ["Climbing up!", "Good job!", "Getting better!", "That was hard!", "Step by step!", "Here we go!"],
+        "bajando": ["Don't give up!", "Still in the game!", "Focus now", "Next one is yours!", "Breathe and go!", "Stay sharp"],
+        "general": ["Go for it!", "You got this!", "Breathe and answer", "Have fun learning", "Let's go!", "Ready to win?"]
+    }
+}
