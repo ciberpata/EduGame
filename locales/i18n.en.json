@@ -244,6 +244,7 @@
     "dash_btn_new_game": "Create Game",
     "dash_btn_new_user": "Create User",
     "dash_btn_history": "View History",
+    "dash_btn_active_games": "Number of active games at this time",
     "tools_title": "Tools",
     "diag_title": "System Diagnostics",
     "diag_db_status": "Database Status",

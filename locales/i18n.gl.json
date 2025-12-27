@@ -244,6 +244,7 @@
     "dash_btn_new_game": "Crear Partida",
     "dash_btn_new_user": "Crear Usuario",
     "dash_btn_history": "Ver Historial",
+    "dash_btn_active_games": "Número de xogos activos neste momento",
     "tools_title": "Ferramentas",
     "diag_title": "Diagnóstico do Sistema",
     "diag_db_status": "Estado Base de Datos",
