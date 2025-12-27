@@ -141,18 +141,29 @@ if ($role != 6) {
             <p class="welcome-subtitle"><?php echo date('d/m/Y'); ?> | <?php echo htmlspecialchars($rol_nombre); ?></p>
         </div>
         
-        <div class="header-actions">
+        <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
             <?php if($role == 6): ?>
                 <a href="play/index.php" target="_blank" class="btn-primary" style="text-decoration: none;">
-                    <i class="fa-solid fa-gamepad"></i> Unirse a Partida
+                    <i class="fa-solid fa-gamepad"></i> <span>Unirse a Partida</span>
                 </a>
-            <?php elseif($activeGames > 0): ?>
-                <button class="active-games-card pulse-animation" onclick="window.location.href='partidas'">
-                    <div class="active-games-title">
-                        <i class="fa-solid fa-satellite-dish"></i> <?php echo $activeGames; ?> <?php echo __('dash_stat_active_games'); ?>
-                    </div>
-                    <span class="active-games-arrow">Ir a Partidas &rarr;</span>
-                </button>
+            <?php else: ?>
+                <?php if($activeGames > 0): ?>
+                    <button class="active-games-card pulse-animation" onclick="window.location.href='partidas'" title="<?php echo __('dash_btn_active_games'); ?>" style="margin: 0; padding: 0.6rem 1rem; cursor:pointer;">
+                        <div class="active-games-title" style="margin:0; border:none; padding:0;">
+                            <i class="fa-solid fa-satellite-dish"></i> <?php echo $activeGames; ?>
+                        </div>
+                    </button>
+                <?php endif; ?>
+
+                <a href="partidas" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-plus"></i> <span><?php echo __('dash_btn_new_game'); ?></span>
+                </a>
+                
+                <?php if($role == 1 || $role == 2): ?>
+                <a href="usuarios" class="btn-icon" style="border:1px solid var(--border-color); border-radius: var(--radius); width: auto; padding: 0.6rem 1.2rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: var(--text-color);">
+                    <i class="fa-solid fa-user-plus"></i> <span><?php echo __('dash_btn_new_user'); ?></span>
+                </a>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -193,23 +204,6 @@ if ($role != 6) {
             </div>
             
             <div class="quick-actions-footer">
-                <h4 class="quick-actions-label"><?php echo __('dash_quick_actions'); ?></h4>
-                <div class="quick-actions-buttons">
-                    <?php if($role == 6): ?>
-                        <a href="partidas" class="btn-action-quick btn-action-green">
-                            <i class="fa-solid fa-clock-rotate-left"></i> Mi Historial
-                        </a>
-                    <?php else: ?>
-                        <a href="partidas" class="btn-action-quick btn-action-blue">
-                            <i class="fa-solid fa-plus"></i> <?php echo __('dash_btn_new_game'); ?>
-                        </a>
-                        <?php if($role == 1 || $role == 2): ?>
-                        <a href="usuarios" class="btn-action-quick btn-action-green">
-                            <i class="fa-solid fa-user-plus"></i> <?php echo __('dash_btn_new_user'); ?>
-                        </a>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                </div>
             </div>
         </div>
     </div>
@@ -226,21 +220,38 @@ if ($role != 6) {
         data: {
             labels: <?php echo json_encode($chartLabels ?: ['Sin datos']); ?>,
             datasets: [{
-                label: '<?php echo ($role != 6) ? "Partidas Creadas" : "Puntos"; ?>',
-                data: <?php echo json_encode($chartData ?: [0]); ?>,
-                borderColor: primaryColor,
-                backgroundColor: primaryColor + '20', // Opacidad 20%
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true
-            }]
+            label: '<?php echo ($role != 6) ? "Partidas Creadas" : "Puntos"; ?>',
+            data: <?php echo json_encode($chartData ?: [0]); ?>,
+            borderColor: primaryColor,
+            backgroundColor: primaryColor + '15', // Opacidad suave al 15%
+            borderWidth: 3,
+            tension: 0.4,          // Suaviza la curva de la línea
+            fill: true,
+            pointRadius: 0,        // Oculta los puntos para limpiar la línea
+            pointHoverRadius: 6    // Solo muestra el punto al pasar el ratón
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false }
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } }
+        scales: { 
+            y: { 
+                beginAtZero: true, 
+                grid: { 
+                    color: 'rgba(0, 0, 0, 0.05)', 
+                    drawBorder: false,
+                    borderDash: [5, 5] // Línea discontinua horizontal para menos carga visual
+                } 
+            }, 
+            x: { 
+                grid: { display: false } // Quita las líneas verticales
+            } 
         }
+    }
     });
 
     // --- GRÁFICO SECUNDARIO ---

@@ -15,11 +15,17 @@ $isAcademy = ($role == 2);
 <div id="userModal" class="modal">
     <div class="modal-content">
         <h3 id="modalTitle" class="mb-4"><?php echo __('key_users_modal_user'); ?></h3>
-        <form id="userForm">
+        <form id="userForm" enctype="multipart/form-data">
             <input type="hidden" name="id_usuario" id="userId">
             <div class="modal-form-grid">
                 <div>
                     <h4 class="modal-section-title"><?php echo __('key_users_modal_account'); ?></h4>
+                    
+                    <div class="mb-4" style="text-align:center;">
+                        <img id="modalPhotoPreview" src="assets/img/default-avatar.png" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--border-color); margin-bottom:10px;">
+                        <input type="file" name="foto_perfil" id="in_foto" class="form-control" accept="image/*" onchange="previewUserPhoto(event)">
+                    </div>
+
                     <div class="mb-4">
                         <label class="block text-muted mb-2"><?php echo __('name_label'); ?> <span class="text-danger">*</span></label>
                         <input type="text" name="nombre" id="in_nombre" class="form-control" required>
@@ -60,27 +66,31 @@ $isAcademy = ($role == 2);
                 </div>
                 <div>
                     <h4 class="modal-section-title"><?php echo __('fiscal_data'); ?></h4>
-                    <div class="modal-fiscal-row">
-                        <div>
-                            <label class="block text-muted mb-2"><?php echo __('business_name_label'); ?></label>
-                            <input type="text" name="razon_social" id="in_razon" class="form-control">
+                    
+                    <div id="fiscalSpecificFields">
+                        <div class="modal-fiscal-row">
+                            <div>
+                                <label class="block text-muted mb-2"><?php echo __('business_name_label'); ?></label>
+                                <input type="text" name="razon_social" id="in_razon" class="form-control">
+                            </div>
+                            <div>
+                                <label class="block text-muted mb-2"><?php echo __('trade_name_label'); ?></label>
+                                <input type="text" name="nombre_negocio" id="in_negocio" class="form-control">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-muted mb-2"><?php echo __('trade_name_label'); ?></label>
-                            <input type="text" name="nombre_negocio" id="in_negocio" class="form-control">
+                        <div class="modal-fiscal-row">
+                            <div>
+                                <label class="block text-muted mb-2"><?php echo __('nif_label'); ?> <span class="text-danger">*</span></label>
+                                <input type="text" name="nif" id="in_nif" class="form-control" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" onblur="validateNifVisual(this)" required>
+                                <small id="nifError" class="text-danger hidden" style="font-size:0.8rem; margin-top:2px;"><?php echo __('nif_error'); ?></small>
+                            </div>
+                            <div>
+                                <label class="block text-muted mb-2"><?php echo __('roi_label'); ?></label>
+                                <input type="text" name="roi" id="in_roi" class="form-control" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-fiscal-row">
-                        <div>
-                            <label class="block text-muted mb-2"><?php echo __('nif_label'); ?> <span class="text-danger">*</span></label>
-                            <input type="text" name="nif" id="in_nif" class="form-control" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" onblur="validateNifVisual(this)" required>
-                            <small id="nifError" class="text-danger hidden" style="font-size:0.8rem; margin-top:2px;"><?php echo __('nif_error'); ?></small>
-                        </div>
-                        <div>
-                            <label class="block text-muted mb-2"><?php echo __('roi_label'); ?></label>
-                            <input type="text" name="roi" id="in_roi" class="form-control" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
-                        </div>
-                    </div>
+                    
                     <div class="mb-4">
                         <label class="block text-muted mb-2"><?php echo __('phone_label'); ?></label>
                         <input type="text" name="telefono" id="in_tel" class="form-control">
@@ -183,30 +193,34 @@ $isAcademy = ($role == 2);
                 </button>
             </div>
             <div class="advanced-search">
-                <div>
-                    <label class="block text-muted mb-2"><?php echo __('key_users_filter_role'); ?></label>
-                    <select id="f_rol" class="form-control" onchange="loadAdminUsers()">
-                        <option value=""><?php echo __('key_filter_all'); ?></option>
-                        <option value="2"><?php echo __('key_users_role_2'); ?></option>
-                        <option value="3"><?php echo __('key_users_role_3'); ?></option>
-                        <option value="6"><?php echo __('key_users_role_6'); ?></option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-muted mb-2"><?php echo __('key_users_filter_status'); ?></label>
-                    <select id="f_estado" class="form-control" onchange="loadAdminUsers()">
-                        <option value=""><?php echo __('key_filter_all'); ?></option>
-                        <option value="1"><?php echo __('key_users_status_active'); ?></option>
-                        <option value="0"><?php echo __('key_users_status_blocked'); ?></option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-muted mb-2"><?php echo __('key_filter_date_from'); ?></label>
-                    <input type="date" id="f_date_from" class="form-control" onchange="loadAdminUsers()">
-                </div>
-                <div>
-                    <label class="block text-muted mb-2"><?php echo __('key_filter_date_to'); ?></label>
-                    <input type="date" id="f_date_to" class="form-control" onchange="loadAdminUsers()">
+                <div class="grid-3">
+                    <div>
+                        <label class="block text-muted mb-2"><?php echo __('key_users_filter_role'); ?></label>
+                        <select id="f_rol" class="form-control" onchange="loadAdminUsers()">
+                            <option value=""><?php echo __('key_filter_all'); ?></option>
+                            <option value="2"><?php echo __('key_users_role_2'); ?></option>
+                            <option value="3"><?php echo __('key_users_role_3'); ?></option>
+                            <option value="4"><?php echo __('key_users_role_4'); ?></option>
+                            <option value="5"><?php echo __('key_users_role_5'); ?></option>
+                            <option value="6"><?php echo __('key_users_role_6'); ?></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-muted mb-2"><?php echo __('key_users_filter_status'); ?></label>
+                        <select id="f_estado" class="form-control" onchange="loadAdminUsers()">
+                            <option value=""><?php echo __('key_filter_all'); ?></option>
+                            <option value="1"><?php echo __('key_users_status_active'); ?></option>
+                            <option value="0"><?php echo __('key_users_status_blocked'); ?></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-muted mb-2"><?php echo __('key_filter_date_from'); ?></label>
+                        <input type="date" id="f_date_from" class="form-control" onchange="loadAdminUsers()">
+                    </div>
+                    <div>
+                        <label class="block text-muted mb-2"><?php echo __('key_filter_date_to'); ?></label>
+                        <input type="date" id="f_date_to" class="form-control" onchange="loadAdminUsers()">
+                    </div>
                 </div>
             </div>
         </div>
@@ -334,7 +348,6 @@ $isAcademy = ($role == 2);
 </div>
 
 <script>
-    // --- Variables Globales ---
     let userState = {
         page: 1,
         limit: 10,
@@ -377,11 +390,16 @@ $isAcademy = ($role == 2);
         }
     });
 
+    function previewUserPhoto(e) { 
+        const r = new FileReader(); 
+        r.onload = () => document.getElementById('modalPhotoPreview').src = r.result; 
+        r.readAsDataURL(e.target.files[0]); 
+    }
+
     function formatDateInput(date) {
         return date.toISOString().split('T')[0];
     }
 
-    // --- FILTROS (FIX PUNTO 2) ---
     function resetUserFilters(btn) {
         document.querySelectorAll('.btn-quick-filter').forEach(b => b.classList.remove('active'));
         document.getElementById('f_rol').value = '';
@@ -396,7 +414,7 @@ $isAcademy = ($role == 2);
 
     function applyUserFilter(type, btn) {
         document.querySelectorAll('.btn-quick-filter').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active'); // Añade clase para resaltado
+        if (btn) btn.classList.add('active'); 
 
         document.getElementById('f_rol').value = '';
         document.getElementById('f_estado').value = '';
@@ -441,7 +459,6 @@ $isAcademy = ($role == 2);
         loadAdminUsers();
     }
 
-    // --- NAVEGACIÓN ---
     function changeUserSort(col) {
         if (userState.sortCol === col) userState.sortOrder = (userState.sortOrder === 'ASC') ? 'DESC' : 'ASC';
         else {
@@ -482,69 +499,83 @@ $isAcademy = ($role == 2);
         }, 300);
     }
 
-    // --- CARGA DE DATOS ---
     async function loadAdminUsers() {
-        const global = document.getElementById('globalSearch').value;
-        const f_rol = document.getElementById('f_rol').value;
-        const f_estado = document.getElementById('f_estado').value;
-        const date_from = document.getElementById('f_date_from').value;
-        const date_to = document.getElementById('f_date_to').value;
-        const tbody = document.getElementById('usersTableBody');
-        const params = new URLSearchParams({
-            global,
-            f_rol,
-            f_estado,
-            date_from,
-            date_to,
-            sort: userState.sortCol,
-            order: userState.sortOrder,
-            page: userState.page,
-            limit: userState.limit,
-            special_filter: window.currentUserFilter
-        });
+    const global = document.getElementById('globalSearch').value;
+    const f_rol = document.getElementById('f_rol').value;
+    const f_estado = document.getElementById('f_estado').value;
+    const date_from = document.getElementById('f_date_from').value;
+    const date_to = document.getElementById('f_date_to').value;
+    const tbody = document.getElementById('usersTableBody');
+    const params = new URLSearchParams({
+        global, f_rol, f_estado, date_from, date_to,
+        sort: userState.sortCol, order: userState.sortOrder,
+        page: userState.page, limit: userState.limit,
+        special_filter: window.currentUserFilter
+    });
 
-        try {
-            const res = await fetch(`api/usuarios.php?${params.toString()}`);
-            const data = await res.json();
-            tbody.innerHTML = '';
-            if (!data.data || data.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted"><?php echo __('key_js_no_results'); ?></td></tr>';
-                renderUserPagination(0);
-                return;
-            }
-            data.data.forEach(u => {
-                const statusIcon = u.activo == 1 ?
-                    `<i class="fa-solid fa-toggle-on text-success" style="font-size:1.2rem;"></i>` :
-                    `<i class="fa-solid fa-toggle-off text-muted" style="font-size:1.2rem;"></i>`;
-                const toggleTitle = u.activo == 1 ? "<?php echo __('user_js_deactivate'); ?>" : "<?php echo __('user_js_activate'); ?>";
-                let extraInfo = '';
-                if (window.currentUserFilter === 'top_creators') {
-                    extraInfo = `<br><small class="text-muted"><i class="fa-solid fa-file-circle-question"></i> ${u.total_preguntas}</small>`;
-                } else if (window.currentUserFilter === 'risk_students') {
-                    const colorClass = u.promedio_puntos < 50 ? 'text-danger' : 'text-warning';
-                    extraInfo = `<br><small class="${colorClass}"><i class="fa-solid fa-star"></i> Avg: ${u.promedio_puntos}</small>`;
-                }
-
-                tbody.innerHTML += `
-                <tr>
-                    <td><strong>${u.id_usuario}</strong></td>
-                    <td><strong>${u.nombre}</strong><br><small class="text-muted">${u.correo}</small>${extraInfo}</td>
-                    <td>${u.nombre_rol}</td>
-                    <td>${u.nif || '-'}<br><small class="text-muted">${u.razon_social || ''}</small></td>
-                    <td>${u.activo==1?'<span class="text-success font-bold"><?php echo __('key_users_status_active'); ?></span>':'<span class="text-danger font-bold"><?php echo __('key_users_status_blocked'); ?></span>'}</td>
-                    <td class="text-right">
-                        <button onclick="toggleUserStatus(${u.id_usuario}, ${u.activo})" class="btn-icon" title="${toggleTitle}">${statusIcon}</button>
-                        <button onclick="editUser(${u.id_usuario})" class="btn-icon" title="<?php echo __('key_js_edit_title'); ?>"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="changePass(${u.id_usuario})" class="btn-icon text-warning" title="<?php echo __('key_users_pass_title'); ?>"><i class="fa-solid fa-key"></i></button>
-                        <button onclick="deleteUser(${u.id_usuario})" class="btn-icon text-danger" title="<?php echo __('key_js_delete_title'); ?>"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>`;
-            });
-            renderUserPagination(data.total);
-        } catch (e) {
-            console.error(e);
+    try {
+        const res = await fetch(`api/usuarios.php?${params.toString()}`);
+        const data = await res.json();
+        tbody.innerHTML = '';
+        if (!data.data || data.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted"><?php echo __("key_js_no_results"); ?></td></tr>';
+            renderUserPagination(0);
+            return;
         }
+        
+        data.data.forEach(u => {
+            const statusIcon = u.activo == 1 ?
+                `<i class="fa-solid fa-toggle-on text-success" style="font-size:1.2rem;"></i>` :
+                `<i class="fa-solid fa-toggle-off text-muted" style="font-size:1.2rem;"></i>`;
+            const toggleTitle = u.activo == 1 ? "<?php echo __('user_js_deactivate'); ?>" : "<?php echo __('user_js_activate'); ?>";
+            
+            let extraInfo = '';
+            if (window.currentUserFilter === 'top_creators') {
+                extraInfo = `<br><small class="text-muted"><i class="fa-solid fa-file-circle-question"></i> ${u.total_preguntas}</small>`;
+            } else if (window.currentUserFilter === 'risk_students') {
+                const colorClass = u.promedio_puntos < 50 ? 'text-danger' : 'text-warning';
+                extraInfo = `<br><small class="${colorClass}"><i class="fa-solid fa-star"></i> Avg: ${u.promedio_puntos}</small>`;
+            }
+
+            // --- LÓGICA DE RENDERIZADO DUAL (WEB P + FALLBACK) ---
+            const webpPath = u.foto_perfil || 'assets/img/default-avatar.png';
+            // Fallback: Si el archivo es webp, intentamos cargar el nombre base con extensión común
+            const fallbackPath = webpPath.includes('.webp') ? webpPath.replace('.webp', '.jpg') : webpPath;
+
+            const pictureHtml = `
+                <picture>
+                    <source srcset="${webpPath}" type="image/webp">
+                    <source srcset="${fallbackPath}" type="image/jpeg">
+                    <img src="${webpPath}" 
+                         style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);"
+                         onerror="this.src='assets/img/default-avatar.png'">
+                </picture>`;
+
+            tbody.innerHTML += `
+            <tr>
+                <td><strong>${u.id_usuario}</strong></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        ${pictureHtml}
+                        <div><strong>${u.nombre}</strong><br><small class="text-muted">${u.correo}</small>${extraInfo}</div>
+                    </div>
+                </td>
+                <td>${u.nombre_rol}</td>
+                <td>${u.nif || '-'}<br><small class="text-muted">${u.razon_social || ''}</small></td>
+                <td>${u.activo==1?'<span class="text-success font-bold"><?php echo __("key_users_status_active"); ?></span>':'<span class="text-danger font-bold"><?php echo __("key_users_status_blocked"); ?></span>'}</td>
+                <td class="text-right">
+                    <button onclick="toggleUserStatus(${u.id_usuario}, ${u.activo})" class="btn-icon" title="${toggleTitle}">${statusIcon}</button>
+                    <button onclick="editUser(${u.id_usuario})" class="btn-icon" title="<?php echo __("key_js_edit_title"); ?>"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="changePass(${u.id_usuario})" class="btn-icon text-warning" title="<?php echo __("key_users_pass_title"); ?>"><i class="fa-solid fa-key"></i></button>
+                    <button onclick="deleteUser(${u.id_usuario})" class="btn-icon text-danger" title="<?php echo __("key_js_delete_title"); ?>"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>`;
+        });
+        renderUserPagination(data.total);
+    } catch (e) {
+        console.error(e);
     }
+}
 
     function renderUserPagination(total) {
         userState.totalPages = Math.ceil(total / (userState.limit === -1 ? total : userState.limit)) || 1;
@@ -559,7 +590,6 @@ $isAcademy = ($role == 2);
         document.querySelectorAll('button[onclick="nextUserPage()"]').forEach(b => b.disabled = (userState.page >= userState.totalPages));
     }
 
-    // --- UTILIDADES ---
     function isValidNifFormat(nif) {
         if (!nif) return false;
         const validChars = 'TRWAGMYFPDXBNJZSQVHLCKE';
@@ -589,8 +619,6 @@ $isAcademy = ($role == 2);
         }
     }
 
-    // --- INTERFAZ ---
-    // FIX PUNTO 1: Esta función alterna la clase 'open' para mostrar/ocultar filtros
     function toggleAdvancedSearch(button) {
         const searchPanel = button.closest('.search-panel');
         if (searchPanel) {
@@ -628,19 +656,20 @@ $isAcademy = ($role == 2);
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
     }
 
-    // --- CRUD ---
     function openCreateModal() {
         document.getElementById('userForm').reset();
         document.getElementById('userId').value = '';
         document.getElementById('modalTitle').innerText = '<?php echo __('key_users_modal_create_title'); ?>';
         document.getElementById('divPassCreate').style.display = 'block';
         document.getElementById('in_pass').required = true;
+        document.getElementById('modalPhotoPreview').src = 'assets/img/default-avatar.png';
         configureRoleSelect();
         document.getElementById('in_nif').style.borderColor = '';
         const err = document.getElementById('nifError');
         if (err) err.classList.add('hidden');
         document.getElementById('userModal').classList.add('active');
     }
+
     async function editUser(id) {
         const res = await fetch(`api/usuarios.php?id=${id}`);
         const u = await res.json();
@@ -662,6 +691,9 @@ $isAcademy = ($role == 2);
         document.getElementById('in_dir').value = u.direccion || '';
         document.getElementById('in_dir_num').value = u.direccion_numero || '';
         document.getElementById('in_cp').value = u.cp || '';
+        
+        document.getElementById('modalPhotoPreview').src = u.foto_perfil ? u.foto_perfil : 'assets/img/default-avatar.png';
+
         const paisSelect = document.getElementById('in_pais');
         paisSelect.value = u.id_pais || 'ES';
         toggleAdminGeo();
@@ -678,26 +710,19 @@ $isAcademy = ($role == 2);
         document.getElementById('in_pass').required = false;
         document.getElementById('userModal').classList.add('active');
     }
+
     async function toggleUserStatus(id, currentStatus) {
         const newStatus = currentStatus == 1 ? 0 : 1;
         try {
             const res = await fetch('api/usuarios.php', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'toggle_status',
-                    id_usuario: id,
-                    nuevo_estado: newStatus
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'toggle_status', id_usuario: id, nuevo_estado: newStatus })
             });
             const json = await res.json();
             if (json.success) loadAdminUsers();
             else alert('Error: ' + json.error);
-        } catch (e) {
-            alert("Error de conexión");
-        }
+        } catch (e) { alert("Error de conexión"); }
     }
 
     function changePass(id) {
@@ -705,25 +730,21 @@ $isAcademy = ($role == 2);
         document.getElementById('passUserId').value = id;
         document.getElementById('passModal').classList.add('active');
     }
+
     async function deleteUser(id) {
-    if(!confirm('<?php echo __('key_js_delete_confirm'); ?>')) return;
-    try {
-        const res = await fetch('api/usuarios.php', { 
-            method: 'DELETE', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({id}) 
-        });
-        const json = await res.json();
-        if(json.success) {
-            loadAdminUsers();
-        } else {
-            // Aquí se muestra el mensaje amigable definido en la API
-            alert(json.error);
-        }
-    } catch(e) {
-        alert("Error de conexión al intentar borrar el usuario.");
+        if(!confirm('<?php echo __('key_js_delete_confirm'); ?>')) return;
+        try {
+            const res = await fetch('api/usuarios.php', { 
+                method: 'DELETE', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({id}) 
+            });
+            const json = await res.json();
+            if(json.success) loadAdminUsers();
+            else alert(json.error);
+        } catch(e) { alert("Error de conexión al intentar borrar el usuario."); }
     }
-}
+
     async function loadAcademiasList() {
         const res = await fetch('api/usuarios.php?type=academias');
         const json = await res.json();
@@ -736,26 +757,38 @@ $isAcademy = ($role == 2);
         const sel = document.getElementById('in_rol');
         sel.innerHTML = '';
         if (myRole === 1) {
-            sel.innerHTML += '<option value="1"><?php echo __('key_users_role_1'); ?></option><option value="2"><?php echo __('key_users_role_2'); ?></option><option value="4"><?php echo __('key_users_role_4'); ?></option><option value="3"><?php echo __('key_users_role_3'); ?></option><option value="5"><?php echo __('key_users_role_5'); ?></option><option value="6"><?php echo __('key_users_role_6'); ?></option>';
+            sel.innerHTML = '<option value="1">SuperAdmin</option><option value="2">Academia</option><option value="4">Profe Indep</option><option value="3">Profe</option><option value="5">Gestor Contenido</option><option value="6">Alumno</option>';
         } else if (myRole === 2) {
-            sel.innerHTML += '<option value="3"><?php echo __('key_users_role_3_short'); ?></option><option value="5"><?php echo __('key_users_role_5'); ?></option><option value="6"><?php echo __('key_users_role_6'); ?></option>';
+            sel.innerHTML = '<option value="3">Profe</option><option value="5">Gestor Contenido</option><option value="6">Alumno</option>';
+        } else if (myRole === 4) {
+            sel.innerHTML = '<option value="6">Alumno</option>'; 
         }
         toggleAcademySelect();
     }
 
     function toggleAcademySelect() {
         const rol = document.getElementById('in_rol').value;
-        const div = document.getElementById('divSelectAcademia');
-        const inputPadre = document.getElementById('in_id_padre');
+        const divAcad = document.getElementById('divSelectAcademia');
+        const divFiscal = document.getElementById('fiscalSpecificFields');
+        
+        // CORRECCIÓN CLAVE: Mostrar u ocultar campos fiscales
+        const isStudent = (rol === '6');
+        divFiscal.style.display = isStudent ? 'none' : 'block';
+        
+        // IMPORTANTE: Si está oculto, quitar required para que el formulario se envíe
+        const nifInput = document.getElementById('in_nif');
+        nifInput.required = !isStudent;
+
         if (myRole === 1 && (rol === '3' || rol === '5')) {
-            div.classList.remove('hidden');
-            inputPadre.required = true;
+            divAcad.classList.remove('hidden');
+            document.getElementById('in_id_padre').required = true;
         } else {
-            div.classList.add('hidden');
-            inputPadre.required = false;
-            inputPadre.value = '';
+            divAcad.classList.add('hidden');
+            document.getElementById('in_id_padre').required = false;
+            document.getElementById('in_id_padre').value = '';
         }
     }
+
     async function loadAdminPaises() {
         const res = await fetch('api/geo.php?type=paises');
         const data = await res.json();
@@ -777,6 +810,7 @@ $isAcademy = ($role == 2);
         document.getElementById('in_prov').required = isES;
         document.getElementById('in_ciud').required = isES;
     }
+
     async function loadAdminProvincias() {
         const res = await fetch('api/geo.php?type=provincias&id=ES');
         const data = await res.json();
@@ -784,6 +818,7 @@ $isAcademy = ($role == 2);
         sel.innerHTML = '<option value="">Provincia...</option>';
         data.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.nombre}</option>`);
     }
+
     async function loadAdminCiudades(pid) {
         if (!pid) return;
         const res = await fetch(`api/geo.php?type=ciudades&id=${pid}`);
@@ -792,39 +827,25 @@ $isAcademy = ($role == 2);
         sel.innerHTML = '<option value="">Ciudad...</option>';
         data.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
     }
+
     document.getElementById('userForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nif = document.getElementById('in_nif').value;
-        const pais = document.getElementById('in_pais').value;
-        if (pais === 'ES' && !isValidNifFormat(nif)) {
-            alert('<?php echo __('nif_error'); ?>');
-            return;
-        }
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-        const isEdit = !!data.id_usuario;
-        const method = isEdit ? 'PUT' : 'POST';
-        const res = await fetch('api/usuarios.php', {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+        const fd = new FormData(e.target);
+        if(fd.get('id_usuario')) fd.append('action', 'update_user_crud');
+        const res = await fetch('api/usuarios.php', { method: 'POST', body: fd });
         const json = await res.json();
         if (json.success) {
             closeModals();
             loadAdminUsers();
         } else alert(json.error);
     });
+
     document.getElementById('passFormAdmin').addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target));
         const res = await fetch('api/usuarios.php', {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         const json = await res.json();
@@ -838,7 +859,8 @@ $isAcademy = ($role == 2);
         const search = document.getElementById('globalSearch').value;
         window.open(`api/export_pdf.php?type=usuarios&search=${search}`, '_blank');
     }
-    // Importación
+
+    // --- IMPORTACIÓN ---
     async function validateUserFile() {
         document.getElementById('import-step-1').classList.add('hidden');
         document.getElementById('import-mapping-step').classList.add('hidden');
@@ -850,10 +872,7 @@ $isAcademy = ($role == 2);
         document.getElementById('validation-log').innerHTML = "<?php echo __('key_js_import_validating'); ?>";
         document.getElementById('btn-confirm-import').disabled = true;
         try {
-            const res = await fetch('api/usuarios.php', {
-                method: 'POST',
-                body: fd
-            });
+            const res = await fetch('api/usuarios.php', { method: 'POST', body: fd });
             const json = await res.json();
             if (json.status === 'ok') {
                 document.getElementById('validation-log').innerHTML = `<span class="text-success">OK. ${json.filas_validas} registros detectados.</span>`;
@@ -878,6 +897,7 @@ $isAcademy = ($role == 2);
         document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
         document.getElementById('st-1').classList.add('active');
     }
+
     async function executeUserImport() {
         let mappingData = null;
         const mappingDiv = document.getElementById('import-mapping-step');
@@ -897,10 +917,7 @@ $isAcademy = ($role == 2);
         fd.append('archivo', fileToImport);
         if (mappingData) fd.append('mapping', JSON.stringify(mappingData));
         try {
-            const res = await fetch('api/usuarios.php', {
-                method: 'POST',
-                body: fd
-            });
+            const res = await fetch('api/usuarios.php', { method: 'POST', body: fd });
             const json = await res.json();
             if (json.status === 'ok') {
                 alert(json.mensaje);
@@ -912,46 +929,25 @@ $isAcademy = ($role == 2);
                     btn.innerText = "<?php echo __('key_import_btn_import'); ?>";
                 }
             }
-        } catch (e) {
-            console.error(e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     function renderUserMappingInterface(headers) {
         const container = document.getElementById('import-mapping-step');
         const tbody = document.getElementById('mappingTableBody');
         tbody.innerHTML = '';
-        const fields = [{
-            key: 'nombre',
-            label: "<?php echo __('key_field_name'); ?> *"
-        }, {
-            key: 'correo',
-            label: "<?php echo __('key_field_email'); ?> *"
-        }, {
-            key: 'contrasena',
-            label: "<?php echo __('key_field_password'); ?> *"
-        }, {
-            key: 'rol',
-            label: "<?php echo __('key_field_role'); ?>"
-        }, {
-            key: 'telefono',
-            label: "<?php echo __('key_field_phone'); ?>"
-        }, {
-            key: 'nif',
-            label: "<?php echo __('key_field_nif'); ?>"
-        }, {
-            key: 'razon_social',
-            label: "<?php echo __('business_name_label'); ?>"
-        }, {
-            key: 'direccion',
-            label: "<?php echo __('address_label'); ?>"
-        }, {
-            key: 'cp',
-            label: "<?php echo __('zip_code_label'); ?>"
-        }, {
-            key: 'pais',
-            label: "<?php echo __('country_label'); ?>"
-        }];
+        const fields = [
+            { key: 'nombre', label: "<?php echo __('key_field_name'); ?> *" }, 
+            { key: 'correo', label: "<?php echo __('key_field_email'); ?> *" }, 
+            { key: 'contrasena', label: "<?php echo __('key_field_password'); ?> *" }, 
+            { key: 'rol', label: "<?php echo __('key_field_role'); ?>" }, 
+            { key: 'telefono', label: "<?php echo __('key_field_phone'); ?>" }, 
+            { key: 'nif', label: "<?php echo __('key_field_nif'); ?>" }, 
+            { key: 'razon_social', label: "<?php echo __('business_name_label'); ?>" }, 
+            { key: 'direccion', label: "<?php echo __('address_label'); ?>" }, 
+            { key: 'cp', label: "<?php echo __('zip_code_label'); ?>" }, 
+            { key: 'pais', label: "<?php echo __('country_label'); ?>" }
+        ];
         fields.forEach(field => {
             let options = `<option value="">-- Ignorar --</option>`;
             let matchClass = 'unmatched';
@@ -959,7 +955,16 @@ $isAcademy = ($role == 2);
                 const hLow = h.toLowerCase().trim();
                 const fLow = field.key.toLowerCase();
                 let selected = '';
-                if ((fLow === 'nombre' && hLow.includes('nomb')) || (fLow === 'correo' && (hLow.includes('corr') || hLow.includes('email'))) || (fLow === 'contrasena' && (hLow.includes('pass') || hLow.includes('contra'))) || (fLow === 'rol' && (hLow.includes('rol') || hLow.includes('type'))) || (fLow === 'telefono' && (hLow.includes('tel') || hLow.includes('phon'))) || (fLow === 'nif' && (hLow.includes('nif') || hLow.includes('dni'))) || (fLow === 'razon_social' && (hLow.includes('razon') || hLow.includes('social'))) || (fLow === 'direccion' && (hLow.includes('direcc') || hLow.includes('address'))) || (fLow === 'cp' && (hLow.includes('postal') || hLow.includes('cp'))) || (fLow === 'pais' && (hLow.includes('pais') || hLow.includes('country')))) {
+                if ((fLow === 'nombre' && hLow.includes('nomb')) || 
+                    (fLow === 'correo' && (hLow.includes('corr') || hLow.includes('email'))) || 
+                    (fLow === 'contrasena' && (hLow.includes('pass') || hLow.includes('contra'))) || 
+                    (fLow === 'rol' && (hLow.includes('rol') || hLow.includes('type'))) || 
+                    (fLow === 'telefono' && (hLow.includes('tel') || hLow.includes('phon'))) || 
+                    (fLow === 'nif' && (hLow.includes('nif') || hLow.includes('dni'))) || 
+                    (fLow === 'razon_social' && (hLow.includes('razon') || hLow.includes('social'))) || 
+                    (fLow === 'direccion' && (hLow.includes('direcc') || hLow.includes('address'))) || 
+                    (fLow === 'cp' && (hLow.includes('postal') || hLow.includes('cp'))) || 
+                    (fLow === 'pais' && (hLow.includes('pais') || hLow.includes('country')))) {
                     selected = 'selected';
                     matchClass = 'matched';
                 }
