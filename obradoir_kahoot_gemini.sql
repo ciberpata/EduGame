@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 21-12-2025 a las 21:21:26
+-- Tiempo de generación: 27-12-2025 a las 14:34:38
 -- Versión del servidor: 11.4.5-MariaDB-cll-lve
 -- Versión de PHP: 8.4.14
 
@@ -235,7 +235,132 @@ INSERT INTO `auditoria` (`id_log`, `id_usuario`, `accion`, `entidad`, `id_afecta
 (191, 67, 'INSERT', 'partidas', 3019, '{\"nombre\":\"pp\"}', '46.222.13.232', '2025-12-19 21:26:07'),
 (192, 67, 'DELETE', 'partidas', 3019, NULL, '46.222.13.232', '2025-12-19 21:26:14'),
 (193, 67, 'LOGIN', 'sesion', 67, NULL, '46.222.13.232', '2025-12-19 21:39:05'),
-(194, 1008, 'LOGIN', 'sesion', 1008, NULL, '46.222.91.0', '2025-12-21 20:03:33');
+(194, 1008, 'LOGIN', 'sesion', 1008, NULL, '46.222.91.0', '2025-12-21 20:03:33'),
+(195, 1008, 'LOGIN', 'sesion', 1008, NULL, '46.222.26.202', '2025-12-21 20:48:35'),
+(196, 1008, 'LOGIN', 'sesion', 1008, NULL, '46.222.26.202', '2025-12-21 21:11:46'),
+(197, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-25 11:46:18'),
+(198, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-25 11:47:22'),
+(199, 68, 'LOGIN', 'sesion', 68, NULL, '85.85.128.242', '2025-12-25 12:14:19'),
+(200, 68, 'INSERT', 'partidas', 3020, '{\"nombre\":\"Partida Alumnos Academia Future\"}', '85.85.128.242', '2025-12-25 12:15:13'),
+(201, 68, 'UPDATE', 'partidas', 3020, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 12:15:18'),
+(202, 68, 'UPDATE', 'partidas', 3020, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 12:16:56'),
+(203, 68, 'INSERT', 'partidas', 3021, '{\"nombre\":\"Partida Alumnos Academia Future 2\"}', '85.85.128.242', '2025-12-25 12:33:43'),
+(204, 68, 'UPDATE', 'partidas', 3021, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 12:33:51'),
+(205, 68, 'UPDATE', 'partidas', 3021, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 12:34:24'),
+(206, 68, 'INSERT', 'partidas', 3022, '{\"nombre\":\"Partida Alumnos Academia Future 3\"}', '85.85.128.242', '2025-12-25 12:37:18'),
+(207, 68, 'UPDATE', 'partidas', 3022, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 12:37:25'),
+(208, 68, 'UPDATE', 'partidas', 3022, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 12:37:47'),
+(209, 68, 'INSERT', 'partidas', 3023, '{\"nombre\":\"Partida Alumnos Academia Future 4\"}', '85.85.128.242', '2025-12-25 12:40:47'),
+(210, 68, 'UPDATE', 'partidas', 3023, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 12:40:53'),
+(211, 68, 'UPDATE', 'partidas', 3023, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 12:41:10'),
+(212, 68, 'INSERT', 'partidas', 3024, '{\"nombre\":\"Partida Alumnos Academia Future 5\"}', '85.85.128.242', '2025-12-25 12:55:25'),
+(213, 68, 'UPDATE', 'partidas', 3024, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 12:55:44'),
+(214, 68, 'UPDATE', 'partidas', 3024, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 12:56:11'),
+(215, 68, 'INSERT', 'partidas', 3025, '{\"nombre\":\"Partida Alumnos Academia Future 6\"}', '85.85.128.242', '2025-12-25 13:00:28'),
+(216, 68, 'UPDATE', 'partidas', 3025, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 13:00:32'),
+(217, 68, 'UPDATE', 'partidas', 3025, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 13:00:54'),
+(218, 68, 'UPDATE', 'partidas', 3025, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-25 13:02:36'),
+(219, 68, 'INSERT', 'partidas', 3026, '{\"nombre\":\"Partida Alumnos Academia Future 7\"}', '85.85.128.242', '2025-12-25 13:04:15'),
+(220, 68, 'UPDATE', 'partidas', 3026, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 13:04:22'),
+(221, 68, 'UPDATE', 'partidas', 3026, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 13:04:44'),
+(222, 68, 'UPDATE', 'partidas', 3026, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-25 13:05:34'),
+(223, 68, 'INSERT', 'partidas', 3027, '{\"nombre\":\"Partida Alumnos Academia Future 6\"}', '85.85.128.242', '2025-12-25 13:08:18'),
+(224, 68, 'UPDATE', 'partidas', 3027, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 13:08:23'),
+(225, 68, 'UPDATE', 'partidas', 3027, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 13:08:38'),
+(226, 68, 'UPDATE', 'partidas', 3027, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-25 13:09:26'),
+(227, 68, 'INSERT', 'partidas', 3028, '{\"nombre\":\"Partida Alumnos Academia Future 8\"}', '85.85.128.242', '2025-12-25 13:14:24'),
+(228, 68, 'UPDATE', 'partidas', 3028, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 13:14:30'),
+(229, 68, 'UPDATE', 'partidas', 3028, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 13:14:47'),
+(230, 1008, 'LOGIN', 'sesion', 1008, '{\"correo\":\"top@future.com\",\"status\":\"CREDENCIALES_INVALIDAS\"}', '85.85.128.242', '2025-12-25 13:16:17'),
+(231, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-25 13:16:21'),
+(232, 68, 'INSERT', 'partidas', 3029, '{\"nombre\":\"Partida Alumnos Academia Future 9\"}', '85.85.128.242', '2025-12-25 13:16:57'),
+(233, 68, 'UPDATE', 'partidas', 3029, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 13:17:24'),
+(234, 68, 'UPDATE', 'partidas', 3029, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 13:17:26'),
+(235, 68, 'INSERT', 'partidas', 3030, '{\"nombre\":\"P12\"}', '85.85.128.242', '2025-12-25 13:20:19'),
+(236, 68, 'UPDATE', 'partidas', 3030, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 13:20:23'),
+(237, 68, 'UPDATE', 'partidas', 3030, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 13:20:41'),
+(238, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-25 17:05:57'),
+(239, 68, 'UPDATE', 'partidas', 3030, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-25 17:06:04'),
+(240, 68, 'INSERT', 'partidas', 3031, '{\"nombre\":\"Partida Alumnos Academia Future 13\"}', '85.85.128.242', '2025-12-25 17:06:33'),
+(241, 68, 'UPDATE', 'partidas', 3031, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 17:06:39'),
+(242, 68, 'UPDATE', 'partidas', 3031, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 17:07:11'),
+(243, 68, 'INSERT', 'partidas', 3032, '{\"nombre\":\"Partida Alumnos Academia Future 14\"}', '85.85.128.242', '2025-12-25 17:10:04'),
+(244, 68, 'UPDATE', 'partidas', 3032, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 17:10:09'),
+(245, 68, 'UPDATE', 'partidas', 3032, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 17:10:23'),
+(246, 68, 'UPDATE', 'partidas', 3032, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-25 17:11:03'),
+(247, 68, 'UPDATE', 'preguntas', 67, NULL, '85.85.128.242', '2025-12-25 17:11:23'),
+(248, 68, 'INSERT', 'partidas', 3033, '{\"nombre\":\"p9\"}', '85.85.128.242', '2025-12-25 17:13:24'),
+(249, 68, 'UPDATE', 'partidas', 3033, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-25 17:13:28'),
+(250, 68, 'UPDATE', 'partidas', 3033, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-25 17:13:50'),
+(251, 68, 'UPDATE', 'partidas', 3033, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-25 17:14:38'),
+(252, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-26 10:54:30'),
+(253, 68, 'INSERT', 'partidas', 3034, '{\"nombre\":\"Partida Prueba 1\"}', '85.85.128.242', '2025-12-26 10:55:11'),
+(254, 68, 'UPDATE', 'partidas', 3034, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-26 10:55:17'),
+(255, 68, 'UPDATE', 'partidas', 3034, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-26 10:55:40'),
+(256, 68, 'UPDATE', 'partidas', 3034, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-26 10:56:44'),
+(257, 68, 'UPDATE', 'usuarios', 74, '{\"accion\":\"toggle_status\",\"estado\":0}', '85.85.128.242', '2025-12-26 11:00:13'),
+(258, 68, 'UPDATE', 'usuarios', 74, '{\"accion\":\"toggle_status\",\"estado\":1}', '85.85.128.242', '2025-12-26 11:00:15'),
+(259, 68, 'UPDATE', 'usuarios', 74, '{\"nombre\":\"Profe Historia Academia Future\"}', '85.85.128.242', '2025-12-26 11:00:22'),
+(260, 68, 'DELETE', 'partidas', 3034, NULL, '85.85.128.242', '2025-12-26 11:02:25'),
+(261, 68, 'DELETE', 'partidas', 3033, NULL, '85.85.128.242', '2025-12-26 11:02:38'),
+(262, 68, 'DELETE', 'partidas', 3032, NULL, '85.85.128.242', '2025-12-26 11:03:03'),
+(263, 68, 'INSERT', 'partidas', 3035, '{\"nombre\":\"Partida 2\"}', '85.85.128.242', '2025-12-26 11:09:45'),
+(264, 68, 'UPDATE', 'partidas', 3035, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-26 11:09:49'),
+(265, 68, 'UPDATE', 'partidas', 3035, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-26 11:10:12'),
+(266, 68, 'INSERT', 'partidas', 3036, '{\"nombre\":\"P25000\"}', '85.85.128.242', '2025-12-26 11:13:19'),
+(267, 68, 'UPDATE', 'partidas', 3036, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-26 11:13:21'),
+(268, 68, 'UPDATE', 'partidas', 3036, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-26 11:14:09'),
+(269, 68, 'UPDATE', 'partidas', 3036, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-26 11:14:50'),
+(270, 68, 'INSERT', 'partidas', 3037, '{\"nombre\":\"P30000\"}', '85.85.128.242', '2025-12-26 11:19:36'),
+(271, 68, 'UPDATE', 'partidas', 3037, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-26 11:19:42'),
+(272, 68, 'UPDATE', 'partidas', 3037, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-26 11:20:28'),
+(273, 68, 'INSERT', 'partidas', 3038, '{\"nombre\":\"P 35000\"}', '85.85.128.242', '2025-12-26 11:22:49'),
+(274, 68, 'UPDATE', 'partidas', 3038, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-26 11:23:01'),
+(275, 68, 'UPDATE', 'partidas', 3038, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-26 11:25:22'),
+(276, 68, 'UPDATE', 'usuarios', 74, '{\"accion\":\"toggle_status\",\"estado\":0}', '85.85.128.242', '2025-12-26 11:27:00'),
+(277, 68, 'UPDATE', 'usuarios', 74, '{\"accion\":\"toggle_status\",\"estado\":1}', '85.85.128.242', '2025-12-26 11:27:01'),
+(278, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-26 12:02:05'),
+(279, 67, 'UPDATE', 'usuarios', 74, '{\"accion\":\"toggle_status\",\"estado\":0}', '85.85.128.242', '2025-12-26 12:02:31'),
+(280, 67, 'UPDATE', 'usuarios', 74, '{\"accion\":\"toggle_status\",\"estado\":1}', '85.85.128.242', '2025-12-26 12:02:32'),
+(281, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-26 13:59:12'),
+(282, 67, 'DELETE', 'usuarios', 1021, NULL, '85.85.128.242', '2025-12-26 14:19:42'),
+(283, 67, 'INSERT', 'partidas', 3039, '{\"nombre\":\"p112\"}', '85.85.128.242', '2025-12-26 17:41:34'),
+(284, 67, 'UPDATE', 'partidas', 3039, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-26 17:41:38'),
+(285, 67, 'UPDATE', 'partidas', 3039, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-26 17:43:04'),
+(286, 67, 'UPDATE', 'partidas', 3039, '{\"estado\":\"finalizada\"}', '85.85.128.242', '2025-12-26 17:43:47'),
+(287, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-26 18:16:43'),
+(288, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-26 18:29:38'),
+(289, 68, 'INSERT', 'partidas', 3040, '{\"nombre\":\"P10000\"}', '85.85.128.242', '2025-12-26 18:40:35'),
+(290, 67, 'UPDATE', 'partidas', 3040, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-26 18:40:40'),
+(291, 67, 'UPDATE', 'partidas', 3040, '{\"action\":\"iniciar\"}', '85.85.128.242', '2025-12-26 18:41:09'),
+(292, 68, 'LOGIN', 'sesion', 68, NULL, '85.85.128.242', '2025-12-26 18:42:08'),
+(293, 68, 'LOGIN', 'sesion', 68, NULL, '85.85.128.242', '2025-12-26 18:58:37'),
+(294, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-26 19:49:52'),
+(295, 68, 'UPDATE', 'usuarios', 72, '{\"nombre\":\"Profe Informática Academia Future\"}', '85.85.128.242', '2025-12-26 20:51:48'),
+(296, 68, 'UPDATE', 'usuarios', 73, '{\"nombre\":\"Profe Bases de Datos Academia Future\"}', '85.85.128.242', '2025-12-26 21:04:31'),
+(297, 68, 'UPDATE', 'usuarios', 74, '{\"nombre\":\"Profe Historia Academia Future\"}', '85.85.128.242', '2025-12-26 21:05:27'),
+(298, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-26 21:14:57'),
+(299, 68, 'LOGIN', 'sesion', 68, NULL, '85.85.128.242', '2025-12-26 21:17:10'),
+(300, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-26 21:23:53'),
+(301, 68, 'UPDATE', 'usuarios', 1004, '{\"nombre\":\"Profe  Academia Future\"}', '85.85.128.242', '2025-12-26 22:12:32'),
+(302, 68, 'UPDATE', 'usuarios', 1008, '{\"nombre\":\"Alumno Brillante\"}', '85.85.128.242', '2025-12-26 22:14:08'),
+(303, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-26 22:15:31'),
+(304, 68, 'LOGIN', 'sesion', 68, NULL, '85.85.128.242', '2025-12-27 01:52:46'),
+(305, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-27 01:53:17'),
+(306, NULL, 'LOGIN', 'sesion', NULL, '{\"correo\":\"top@academiafuture.com\",\"status\":\"CREDENCIALES_INVALIDAS\"}', '85.85.128.242', '2025-12-27 01:53:45'),
+(307, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-27 01:54:24'),
+(308, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-27 11:35:55'),
+(309, 68, 'LOGIN', 'sesion', 68, NULL, '85.85.128.242', '2025-12-27 11:57:27'),
+(310, 68, 'UPDATE', 'usuarios', 70, '{\"nombre\":\"Editor Content\"}', '85.85.128.242', '2025-12-27 11:59:39'),
+(311, 68, 'UPDATE', 'usuarios', 1005, '{\"nombre\":\"Profe Inactivo Academia Future\"}', '85.85.128.242', '2025-12-27 12:02:16'),
+(312, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-27 12:58:46'),
+(313, 1008, 'LOGIN', 'sesion', 1008, NULL, '85.85.128.242', '2025-12-27 13:14:18'),
+(314, 68, 'LOGIN', 'sesion', 68, NULL, '85.85.128.242', '2025-12-27 13:15:35'),
+(315, 67, 'LOGIN', 'sesion', 67, NULL, '85.85.128.242', '2025-12-27 13:23:58'),
+(316, 67, 'INSERT', 'partidas', 3041, '{\"nombre\":\"eee\"}', '85.85.128.242', '2025-12-27 13:24:36'),
+(317, 67, 'UPDATE', 'partidas', 3041, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-27 13:24:46'),
+(318, 67, 'INSERT', 'partidas', 3042, '{\"nombre\":\"33333\"}', '85.85.128.242', '2025-12-27 13:26:32'),
+(319, 67, 'UPDATE', 'partidas', 3042, '{\"estado\":\"sala_espera\"}', '85.85.128.242', '2025-12-27 13:27:17');
 
 -- --------------------------------------------------------
 
@@ -8588,11 +8713,7 @@ INSERT INTO `ciudades` (`id`, `nombre`, `id_provincia`) VALUES
 (49625, ' Yemen', 54),
 (49626, ' Yibuti', 54),
 (49627, ' Zambia', 54),
-(49628, ' Zimbabue', 54),
-(49630, 'Comarca do Eume e Comarca de Ordes', 15),
-(49631, 'San Sadurniño, Neda, Ferrol, Narón, As Somozas, Valdoviño', 15),
-(49632, 'Provincia A Coruña', 15),
-(49633, 'Santiago e Comarca', 15);
+(49628, ' Zimbabue', 54);
 
 -- --------------------------------------------------------
 
@@ -8623,20 +8744,20 @@ CREATE TABLE `datos_fiscales` (
 INSERT INTO `datos_fiscales` (`id_datos`, `id_usuario`, `razon_social`, `nombre_negocio`, `nif`, `telefono`, `roi`, `direccion_numero`, `cp`, `id_pais`, `id_provincia`, `id_ciudad`, `direccion`) VALUES
 (47, 67, 'Edu Game, SL', 'Edu Game', '33260633B', '629218412', 'ES-33260633B', '9F-3C', '15706', 'ES', 15, 43484, 'Rua Feliciano Barrera Fernández'),
 (48, 68, 'Academia Future, SA', 'Academia Future', '33250105V', '659196594', 'ES-33250105V', '3B', '15703', 'ES', 15, 43484, 'Rep. Salvador'),
-(50, 70, 'Razón Social Editor Content', 'Negocio Editor Content', '12345678Z', '600123456', NULL, NULL, NULL, 'ES', 28, 45649, 'Calle Principal 123'),
+(50, 70, 'Razón Social Editor Content', 'Negocio Editor Content', '12345678Z', '600123456', '', '', '', 'ES', 28, 45649, 'Calle Principal 123'),
 (52, 72, 'Razón Social Profe Mate', 'Negocio Profe Mate', '12345678Z', '600123456', 'ES-12345678Z', '6', '15706', 'ES', 28, 45649, 'Calle Principal 123'),
 (53, 73, 'Razón Social Profe Ingles', 'Negocio Profe Ingles', '12345678Z', '600123456', 'ES-12345678Z', '88', '15706', 'ES', 28, 45649, 'Calle Principal 123'),
 (54, 74, 'Razón Social Profe Historia', 'Negocio Profe Historia', '12345678Z', '600123456', 'ES-12345678Z', '888', '15706', 'ES', 28, 45649, 'Calle Principal 123'),
 (109, 1000, 'Academia Test SL', NULL, 'B10000000', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(110, 1001, NULL, NULL, '00000001X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(110, 1001, '', '', '73977788J', '605533070', '', '', '', 'ES', 13, 43244, ''),
 (111, 1002, NULL, NULL, '00000002X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (112, 1003, NULL, NULL, '00000003X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(113, 1004, NULL, NULL, '00000004X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(114, 1005, NULL, NULL, '00000005X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(115, 1006, NULL, NULL, '00000006X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(113, 1004, '', '', '73977788J', '', '', '', '', 'ES', 16, 43517, ''),
+(114, 1005, 'ghdg', '', '69728765X', '', '', '', '25706', 'ES', 12, 43108, ''),
+(115, 1006, '', '', '73977788J', '', '', '', '', 'ES', 51, 49410, ''),
 (116, 1007, NULL, NULL, '00000007X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(117, 1008, NULL, NULL, '00000008X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(120, 1019, 'Juan Pereira Docente', NULL, '12345678X', NULL, NULL, NULL, NULL, 'ES', NULL, NULL, 'Calle Pruebas 1');
+(117, 1008, '', '', '', '', '', '', '', 'ES', 48, 48774, ''),
+(120, 1019, 'Juan Pereira Docente', '', '33260633B', '', '', '', '', 'ES', 15, 43484, 'Calle Pruebas 1');
 
 -- --------------------------------------------------------
 
@@ -8712,7 +8833,25 @@ INSERT INTO `jugadores_sesion` (`id_sesion`, `id_partida`, `nombre_nick`, `id_us
 (5036, 3018, 'Cristiano Penal', NULL, 2767, 2, 1, 8, '2025-12-19 13:45:48', '85.91.89.247'),
 (5037, 3018, 'XAVI ANTIMADRIT', NULL, 2046, 0, 1, 15, '2025-12-19 13:45:48', '85.91.89.247'),
 (5038, 3018, 'padre del barsa', NULL, 2644, 2, 1, 2, '2025-12-19 13:45:51', '85.91.89.247'),
-(5039, 3018, 'manuel', NULL, 2987, 0, 1, 3, '2025-12-19 13:46:25', '85.91.89.247');
+(5039, 3018, 'manuel', NULL, 2987, 0, 1, 3, '2025-12-19 13:46:25', '85.91.89.247'),
+(5041, 3020, 'Pepe', NULL, 1888, 2, 1, 2, '2025-12-25 13:16:46', '85.85.128.242'),
+(5042, 3021, 'Manolo', 1008, 0, 0, 1, 1, '2025-12-25 13:34:17', NULL),
+(5043, 3022, 'Manolo', NULL, 744, 0, 1, 15, '2025-12-25 13:37:40', '85.85.128.242'),
+(5044, 3023, 'Pepe', 1008, 0, 0, 1, 2, '2025-12-25 13:41:04', NULL),
+(5045, 3024, 'Manolo', 1008, 0, 0, 1, 6, '2025-12-25 13:56:04', NULL),
+(5046, 3025, 'Manolo', 1008, 0, 0, 1, 2, '2025-12-25 14:00:49', NULL),
+(5047, 3026, 'Manolo', 1008, 0, 0, 1, 14, '2025-12-25 14:04:39', NULL),
+(5048, 3027, 'Manolo', 1008, 0, 0, 1, 13, '2025-12-25 14:08:33', NULL),
+(5049, 3028, 'Manolo', 1008, 0, 0, 1, 14, '2025-12-25 14:14:40', NULL),
+(5050, 3029, 'Manolo', 1008, 0, 0, 1, 2, '2025-12-25 14:17:11', NULL),
+(5051, 3030, 'Manolo', 1008, 0, 0, 1, 2, '2025-12-25 14:20:37', NULL),
+(5052, 3031, 'Manolo', 1008, 0, 0, 1, 2, '2025-12-25 18:07:06', NULL),
+(5056, 3035, 'Pepe', NULL, 750, 0, 1, 10, '2025-12-26 12:10:03', '85.85.128.242'),
+(5057, 3036, 'dd', NULL, 950, 1, 1, 2, '2025-12-26 12:14:02', '85.85.128.242'),
+(5058, 3037, 'Manolo', 1008, 0, 0, 1, 10, '2025-12-26 12:20:22', '85.85.128.242'),
+(5059, 3038, 'Manolo', 1008, 1477, 2, 1, 10, '2025-12-26 12:25:13', '85.85.128.242'),
+(5060, 3039, 'Manolo', 67, 938, 1, 1, 1, '2025-12-26 18:42:47', '85.85.128.242'),
+(5061, 3040, 'Manolo', 1008, 925, 0, 1, 2, '2025-12-26 19:41:05', '85.85.128.242');
 
 -- --------------------------------------------------------
 
@@ -9019,7 +9158,27 @@ CREATE TABLE `partidas` (
 INSERT INTO `partidas` (`id_partida`, `codigo_pin`, `id_anfitrion`, `id_modo`, `nombre_partida`, `estado`, `pregunta_actual_index`, `estado_pregunta`, `fecha_inicio`, `id_pregunta_actual`, `tiempo_inicio_pregunta`) VALUES
 (3016, '921287', 67, 1, 'Partida de Prueba', 'finalizada', 3, 'resultados', '2025-12-19 13:24:40', 61, NULL),
 (3017, '925083', 67, 1, 'P2', 'finalizada', 11, 'resultados', '2025-12-19 13:31:58', 66, NULL),
-(3018, '965813', 67, 1, 'P Real Madrid', 'finalizada', 5, 'resultados', '2025-12-19 13:45:14', 2017, NULL);
+(3018, '965813', 67, 1, 'P Real Madrid', 'finalizada', 5, 'resultados', '2025-12-19 13:45:14', 2017, NULL),
+(3020, '597296', 68, 1, 'Partida Alumnos Academia Future', 'finalizada', 2, 'resultados', '2025-12-25 13:15:13', 2007, NULL),
+(3021, '621480', 68, 1, 'Partida Alumnos Academia Future 2', 'finalizada', 2, 'resultados', '2025-12-25 13:33:43', 2007, NULL),
+(3022, '206599', 68, 1, 'Partida Alumnos Academia Future 3', 'finalizada', 2, 'resultados', '2025-12-25 13:37:18', 2006, NULL),
+(3023, '808526', 68, 1, 'Partida Alumnos Academia Future 4', 'finalizada', 2, 'resultados', '2025-12-25 13:40:47', 2003, NULL),
+(3024, '386831', 68, 1, 'Partida Alumnos Academia Future 5', 'finalizada', 2, 'resultados', '2025-12-25 13:55:25', 74, NULL),
+(3025, '876910', 68, 1, 'Partida Alumnos Academia Future 6', 'finalizada', 2, 'resultados', '2025-12-25 14:00:28', 69, NULL),
+(3026, '908871', 68, 1, 'Partida Alumnos Academia Future 7', 'finalizada', 2, 'resultados', '2025-12-25 14:04:15', 68, NULL),
+(3027, '696213', 68, 1, 'Partida Alumnos Academia Future 6', 'finalizada', 2, 'resultados', '2025-12-25 14:08:18', 69, NULL),
+(3028, '896371', 68, 1, 'Partida Alumnos Academia Future 8', 'finalizada', 2, 'resultados', '2025-12-25 14:14:24', 69, NULL),
+(3029, '922548', 68, 1, 'Partida Alumnos Academia Future 9', 'finalizada', 2, 'resultados', '2025-12-25 14:16:57', 74, NULL),
+(3030, '730015', 68, 1, 'P12', 'finalizada', 2, 'resultados', '2025-12-25 14:20:19', 2006, NULL),
+(3031, '685634', 68, 1, 'Partida Alumnos Academia Future 13', 'finalizada', 2, 'resultados', '2025-12-25 18:06:33', 2008, NULL),
+(3035, '824896', 68, 1, 'Partida 2', 'finalizada', 2, 'resultados', '2025-12-26 12:09:45', 75, NULL),
+(3036, '427653', 68, 1, 'P25000', 'finalizada', 2, 'resultados', '2025-12-26 12:13:19', 74, NULL),
+(3037, '819079', 68, 1, 'P30000', 'finalizada', 2, 'resultados', '2025-12-26 12:19:36', 73, NULL),
+(3038, '538939', 68, 1, 'P 35000', 'finalizada', 2, 'resultados', '2025-12-26 12:22:49', 75, NULL),
+(3039, '295186', 67, 1, 'p112', 'finalizada', 2, 'resultados', '2025-12-26 18:41:34', 2020, NULL),
+(3040, '301009', 68, 1, 'P10000', 'finalizada', 2, 'resultados', '2025-12-26 19:40:35', 75, NULL),
+(3041, '925342', 67, 1, 'eee', 'sala_espera', 0, 'intro', '2025-12-27 14:24:36', NULL, NULL),
+(3042, '841706', 67, 1, '33333', 'sala_espera', 0, 'intro', '2025-12-27 14:26:32', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -9057,7 +9216,48 @@ INSERT INTO `partida_preguntas` (`id_pp`, `id_partida`, `id_pregunta`, `orden`) 
 (142, 3018, 2018, 2),
 (143, 3018, 2020, 3),
 (144, 3018, 2019, 4),
-(145, 3018, 2017, 5);
+(145, 3018, 2017, 5),
+(147, 3020, 2008, 1),
+(148, 3020, 2007, 2),
+(149, 3021, 2008, 1),
+(150, 3021, 2007, 2),
+(151, 3022, 2008, 1),
+(152, 3022, 2006, 2),
+(153, 3023, 2006, 1),
+(154, 3023, 2003, 2),
+(155, 3024, 2006, 1),
+(156, 3024, 74, 2),
+(157, 3025, 2007, 1),
+(158, 3025, 69, 2),
+(159, 3026, 70, 1),
+(160, 3026, 68, 2),
+(161, 3027, 75, 1),
+(162, 3027, 69, 2),
+(163, 3028, 65, 1),
+(164, 3028, 69, 2),
+(165, 3029, 2008, 1),
+(166, 3029, 74, 2),
+(167, 3030, 2008, 1),
+(168, 3030, 2006, 2),
+(169, 3031, 2007, 1),
+(170, 3031, 2008, 2),
+(177, 3035, 2008, 1),
+(178, 3035, 75, 2),
+(179, 3036, 2008, 1),
+(180, 3036, 74, 2),
+(181, 3037, 75, 1),
+(182, 3037, 73, 2),
+(183, 3038, 2008, 1),
+(184, 3038, 75, 2),
+(185, 3039, 2018, 1),
+(186, 3039, 2020, 2),
+(187, 3040, 2020, 1),
+(188, 3040, 75, 2),
+(189, 3041, 2020, 1),
+(190, 3041, 2018, 2),
+(191, 3042, 2019, 1),
+(192, 3042, 2017, 2),
+(193, 3042, 2016, 3);
 
 -- --------------------------------------------------------
 
@@ -9162,7 +9362,7 @@ INSERT INTO `preguntas` (`id_pregunta`, `id_propietario`, `texto`, `seccion`, `i
 (64, 68, '¿Qué es una relación?', 'Bases de Datos', NULL, 'ES', 'quiz', 20, 0, '[{\"texto\":\"Vínculo entre tablas\",\"es_correcta\":true},{\"texto\":\"Un número\",\"es_correcta\":false},{\"texto\":\"Una clave\",\"es_correcta\":false},{\"texto\":\"Un permiso\",\"es_correcta\":false}]', 1, '2025-12-10 21:36:26'),
 (65, 68, '¿Qué es SQL?', 'Bases de Datos', NULL, 'ES', 'quiz', 20, 0, '[{\"texto\":\"Lenguaje de consultas\",\"es_correcta\":true},{\"texto\":\"Un sistema operativo\",\"es_correcta\":false},{\"texto\":\"Un navegador\",\"es_correcta\":false},{\"texto\":\"Un hardware\",\"es_correcta\":false}]', 1, '2025-12-10 21:36:26'),
 (66, 74, '¿Quién descubrió América?', 'Historia', NULL, 'ES', 'quiz', 20, 0, '[{\"texto\":\"Colón\",\"es_correcta\":true},{\"texto\":\"Napoleón\",\"es_correcta\":false},{\"texto\":\"César\",\"es_correcta\":false},{\"texto\":\"Platón\",\"es_correcta\":false}]', 1, '2025-12-10 21:36:26'),
-(67, 74, '¿En qué año cayó Roma?', 'Historia', NULL, 'ES', 'quiz', 20, 0, '[{\"texto\":\"476\",\"es_correcta\":true},{\"texto\":\"1492\",\"es_correcta\":false},{\"texto\":\"1914\",\"es_correcta\":false},{\"texto\":\"1212\",\"es_correcta\":false}]', 1, '2025-12-10 21:36:26'),
+(67, 74, '¿En qué año cayó Roma?', 'Historia', NULL, NULL, 'quiz', 20, 0, '[{\"texto\":\"476\",\"es_correcta\":true},{\"texto\":\"1492\",\"es_correcta\":false},{\"texto\":\"1914\",\"es_correcta\":false},{\"texto\":\"1212\",\"es_correcta\":false}]', 0, '2025-12-10 21:36:26'),
 (68, 74, '¿Qué guerra terminó en 1945?', 'Historia', NULL, 'ES', 'quiz', 20, 0, '[{\"texto\":\"Segunda Guerra Mundial\",\"es_correcta\":true},{\"texto\":\"Primera Guerra Mundial\",\"es_correcta\":false},{\"texto\":\"Guerra Civil Española\",\"es_correcta\":false},{\"texto\":\"Guerra Fría\",\"es_correcta\":false}]', 1, '2025-12-10 21:36:26'),
 (69, 74, '¿Qué civilización construyó pirámides?', 'Historia', NULL, 'ES', 'quiz', 20, 0, '[{\"texto\":\"Egipcios\",\"es_correcta\":true},{\"texto\":\"Romanos\",\"es_correcta\":false},{\"texto\":\"Vikingos\",\"es_correcta\":false},{\"texto\":\"Griegos\",\"es_correcta\":false}]', 1, '2025-12-10 21:36:26'),
 (70, 74, '¿Quién fue el primer emperador romano?', 'Historia', NULL, 'ES', 'quiz', 20, 0, '[{\"texto\":\"Augusto\",\"es_correcta\":true},{\"texto\":\"Nerón\",\"es_correcta\":false},{\"texto\":\"Trajano\",\"es_correcta\":false},{\"texto\":\"Tito\",\"es_correcta\":false}]', 1, '2025-12-10 21:36:26'),
@@ -9404,7 +9604,19 @@ INSERT INTO `respuestas_log` (`id_resp`, `id_sesion`, `id_pregunta`, `respuesta_
 (181, 5039, 2017, '{\"indice\":0}', 0, 0),
 (182, 5037, 2017, '{\"indice\":2}', 0, 0),
 (183, 5036, 2017, '{\"indice\":1}', 1, 10.0173),
-(184, 5038, 2017, '{\"indice\":1}', 1, 15.7431);
+(184, 5038, 2017, '{\"indice\":1}', 1, 15.7431),
+(185, 5041, 2008, '{\"indice\":0}', 1, 4.21991),
+(186, 5041, 2007, '{\"indice\":0}', 1, 4.27173),
+(187, 5043, 2008, '{\"indice\":0}', 1, 10.2469),
+(188, 5043, 2006, '{\"indice\":1}', 0, 0),
+(189, 5058, 75, '{\"indice\":3}', 0, 0),
+(190, 5058, 73, '{\"indice\":1}', 0, 0),
+(191, 5059, 2008, '{\"indice\":0}', 1, 18.9223),
+(192, 5059, 75, '{\"indice\":0}', 1, 5.99102),
+(193, 5060, 2018, '{\"indice\":1}', 0, 0),
+(194, 5060, 2020, '{\"indice\":1}', 1, 4.93073),
+(195, 5061, 2020, '{\"indice\":1}', 1, 5.98946),
+(196, 5061, 75, '{\"indice\":3}', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -9450,34 +9662,35 @@ CREATE TABLE `usuarios` (
   `creado_en` timestamp NULL DEFAULT current_timestamp(),
   `reset_token` varchar(64) DEFAULT NULL,
   `reset_expires` datetime DEFAULT NULL,
-  `tema_pref` varchar(10) DEFAULT '210'
+  `tema_pref` varchar(10) DEFAULT '210',
+  `nick` varchar(50) DEFAULT NULL,
+  `avatar_id` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `foto_perfil`, `contrasena`, `id_rol`, `id_plan`, `id_padre`, `idioma_pref`, `activo`, `creado_en`, `reset_token`, `reset_expires`, `tema_pref`) VALUES
-(67, 'Super Admin', 'jucapedi@gmail.com', 'assets/uploads/67_1764419855.jpg', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 1, 1, NULL, 'es', 1, '2025-11-29 12:28:13', '181ebc9e1aaf7704959943bbc77d3f22c1925ffcfdefc6e8abcd30ffefcbce52', '2025-12-13 14:28:50', '210'),
-(68, 'Academia Future', 'academia@future.com', 'assets/uploads/68_1765132424.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 2, 1, NULL, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210'),
-(70, 'Editor Content', 'editor@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 5, 1, 68, 'gl', 1, '2025-11-29 12:28:13', NULL, NULL, '35'),
-(72, 'Profe Informática Academia Future', 'informatica@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210'),
-(73, 'Profe Bases de Datos Academia Future', 'basedatos@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210'),
-(74, 'Profe Historia Academia Future', 'historia@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210'),
-(1000, 'Academia Edugame', 'academia@edugame.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 2, 1, NULL, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210'),
-(1001, 'Profe Bloqueado Academia Future', 'bloqueado@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 0, '2025-12-16 10:37:14', NULL, NULL, '210'),
-(1002, 'Academia Test', 'academia@test.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 2, 1, NULL, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210'),
-(1003, 'Alumno Fantasma', 'fantasma@test.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 6, 1, NULL, 'es', 1, '2025-04-16 09:37:14', NULL, NULL, '210'),
-(1004, 'Profe Creador Contenido Academia Future', 'creador@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210'),
-(1005, 'Profe Inactivo Academia Future', 'inactivo@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-10-16 09:37:14', NULL, NULL, '210'),
-(1006, 'Profe Activo Academia Future', 'activo@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210'),
-(1007, 'Alumno Suspenso', 'riesgo@test.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 6, 1, 1002, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210'),
-(1008, 'Alumno Brillante', 'top@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 6, 1, 68, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210'),
-(1010, 'Profe Inactivo Academia Edugame', 'inactivo@edugame.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 1000, 'es', 1, '2025-10-16 09:37:14', NULL, NULL, '210'),
-(1019, 'Juan Pereira', 'juanpereira@obradoiroweb.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 4, 1, NULL, 'es', 1, '2025-12-16 19:40:17', NULL, NULL, '210'),
-(1020, 'Alumno Pedro', 'pedro@clasejuan.com', NULL, '$2y$10$9Gv1X.3s5r1.p/u1.2j3.u4k5l6m7n8o9p0q1r2s3t4u5v6w7x8y9', 6, 1, 1019, 'es', 1, '2025-12-16 19:40:17', NULL, NULL, '210'),
-(1021, 'Alumna Maria', 'maria@clasejuan.com', NULL, '$2y$10$9Gv1X.3s5r1.p/u1.2j3.u4k5l6m7n8o9p0q1r2s3t4u5v6w7x8y9', 6, 1, 1019, 'es', 1, '2025-12-16 19:40:17', NULL, NULL, '210'),
-(1022, 'Alumno Luis (Bloqueado)', 'luis@clasejuan.com', NULL, '$2y$10$9Gv1X.3s5r1.p/u1.2j3.u4k5l6m7n8o9p0q1r2s3t4u5v6w7x8y9', 6, 1, 1019, 'es', 0, '2025-12-16 19:40:17', NULL, NULL, '210');
+INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `foto_perfil`, `contrasena`, `id_rol`, `id_plan`, `id_padre`, `idioma_pref`, `activo`, `creado_en`, `reset_token`, `reset_expires`, `tema_pref`, `nick`, `avatar_id`) VALUES
+(67, 'Super Admin', 'jucapedi@gmail.com', 'assets/uploads/67_1764419855.jpg', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 1, 1, NULL, 'es', 1, '2025-11-29 12:28:13', '181ebc9e1aaf7704959943bbc77d3f22c1925ffcfdefc6e8abcd30ffefcbce52', '2025-12-13 14:28:50', '210', NULL, 1),
+(68, 'Academia Future', 'academia@future.com', 'assets/uploads/68_1765132424.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 2, 1, NULL, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210', NULL, 1),
+(70, 'Editor Content', 'editor@future.com', 'assets/uploads/68-70-12345678Z.webp', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 5, 1, 68, 'gl', 1, '2025-11-29 12:28:13', NULL, NULL, '35', NULL, 1),
+(72, 'Profe Informática Academia Future', 'informatica@future.com', 'assets/uploads/694ef563e2151.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210', NULL, 1),
+(73, 'Profe Bases de Datos Academia Future', 'basedatos@future.com', 'assets/uploads/694ef85f7f1af.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210', NULL, 1),
+(74, 'Profe Historia Academia Future', 'historia@future.com', 'assets/uploads/694ef897b9733.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-11-29 12:28:13', NULL, NULL, '210', NULL, 1),
+(1000, 'Academia Edugame', 'academia@edugame.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 2, 1, NULL, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210', NULL, 1),
+(1001, 'Profe Bloqueado Academia Future', 'bloqueado@future.com', 'assets/uploads/694efc7c5b4ee.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 0, '2025-12-16 10:37:14', NULL, NULL, '210', NULL, 1),
+(1002, 'Academia Test', 'academia@test.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 2, 1, NULL, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210', NULL, 1),
+(1003, 'Alumno Fantasma', 'fantasma@test.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 6, 1, NULL, 'es', 1, '2025-04-16 09:37:14', NULL, NULL, '210', NULL, 1),
+(1004, 'Profe  Academia Future', 'creador@future.com', 'assets/uploads/68-1004-73977788J.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210', NULL, 1),
+(1005, 'Profe Inactivo Academia Future', 'inactivo@future.com', 'assets/uploads/68-1005-69728765X.webp', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-10-16 09:37:14', NULL, NULL, '210', NULL, 1),
+(1006, 'Profe Activo Academia Future', 'activo@future.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 68, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210', NULL, 1),
+(1007, 'Alumno Suspenso', 'riesgo@test.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 6, 1, 1002, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210', NULL, 1),
+(1008, 'Alumno Brillante', 'top@future.com', 'assets/uploads/68-1008-sinDni.png', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 6, 1, 68, 'es', 1, '2025-12-16 10:37:14', NULL, NULL, '210', 'Manolo', 8),
+(1010, 'Profe Inactivo Academia Edugame', 'inactivo@edugame.com', NULL, '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 3, 1, 1000, 'es', 1, '2025-10-16 09:37:14', NULL, NULL, '210', NULL, 1),
+(1019, 'Juan Pereira', 'juanpereira@obradoiroweb.com', 'assets/uploads/694efb31f12c2.jpg', '$2y$12$7v5LX3VKf0TaQtjV37ujVuhQ0W5JJfq2LxR0ZudUdb8Keggj8xi5W', 4, 1, NULL, 'es', 1, '2025-12-16 19:40:17', NULL, NULL, '210', NULL, 1),
+(1020, 'Alumno Pedro', 'pedro@clasejuan.com', NULL, '$2y$10$9Gv1X.3s5r1.p/u1.2j3.u4k5l6m7n8o9p0q1r2s3t4u5v6w7x8y9', 6, 1, 1019, 'es', 1, '2025-12-16 19:40:17', NULL, NULL, '210', NULL, 1),
+(1022, 'Alumno Luis (Bloqueado)', 'luis@clasejuan.com', NULL, '$2y$10$9Gv1X.3s5r1.p/u1.2j3.u4k5l6m7n8o9p0q1r2s3t4u5v6w7x8y9', 6, 1, 1019, 'es', 0, '2025-12-16 19:40:17', NULL, NULL, '210', NULL, 1);
 
 --
 -- Índices para tablas volcadas
@@ -9618,7 +9831,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `auditoria`
 --
 ALTER TABLE `auditoria`
-  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=195;
+  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=320;
 
 --
 -- AUTO_INCREMENT de la tabla `ciudades`
@@ -9630,7 +9843,7 @@ ALTER TABLE `ciudades`
 -- AUTO_INCREMENT de la tabla `datos_fiscales`
 --
 ALTER TABLE `datos_fiscales`
-  MODIFY `id_datos` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
+  MODIFY `id_datos` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=159;
 
 --
 -- AUTO_INCREMENT de la tabla `facturas`
@@ -9648,7 +9861,7 @@ ALTER TABLE `historial_partidas`
 -- AUTO_INCREMENT de la tabla `jugadores_sesion`
 --
 ALTER TABLE `jugadores_sesion`
-  MODIFY `id_sesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5040;
+  MODIFY `id_sesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5062;
 
 --
 -- AUTO_INCREMENT de la tabla `modos_juego`
@@ -9660,13 +9873,13 @@ ALTER TABLE `modos_juego`
 -- AUTO_INCREMENT de la tabla `partidas`
 --
 ALTER TABLE `partidas`
-  MODIFY `id_partida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3020;
+  MODIFY `id_partida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3043;
 
 --
 -- AUTO_INCREMENT de la tabla `partida_preguntas`
 --
 ALTER TABLE `partida_preguntas`
-  MODIFY `id_pp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=147;
+  MODIFY `id_pp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=194;
 
 --
 -- AUTO_INCREMENT de la tabla `planes`
@@ -9696,7 +9909,7 @@ ALTER TABLE `provincias`
 -- AUTO_INCREMENT de la tabla `respuestas_log`
 --
 ALTER TABLE `respuestas_log`
-  MODIFY `id_resp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=185;
+  MODIFY `id_resp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
