@@ -11,12 +11,11 @@ $rol_nombre = $_SESSION['rol_nombre'] ?? '';
 if (empty($rol_nombre)) {
     $stmtRol = $db->prepare("SELECT nombre FROM roles WHERE id_rol = ?");
     $stmtRol->execute([$role]);
-    $rol_nombre = $stmtRol->fetchColumn() ?: 'Usuario';
+    $rol_nombre = $stmtRol->fetchColumn() ?: __('key_role_user'); 
     $_SESSION['rol_nombre'] = $rol_nombre; 
 }
 
 // Inicializar contadores
-// Nota: Usamos nombres de colores simples ('blue', 'green') que coinciden con las clases CSS .stat-blue, etc.
 $stats = [
     'c1' => ['label' => __('dash_stat_teachers'), 'val' => 0, 'icon' => 'fa-chalkboard-user', 'color' => 'blue'],
     'c2' => ['label' => __('dash_stat_students'), 'val' => 0, 'icon' => 'fa-graduation-cap', 'color' => 'green'],
@@ -25,7 +24,7 @@ $stats = [
 ];
 $activeGames = 0;
 
-// Consultas SQL según Rol (Lógica intacta)
+// Consultas SQL según Rol
 if ($role == 1) { // Superadmin
     $stats['c1']['val'] = $db->query("SELECT COUNT(*) FROM usuarios WHERE id_rol IN (2,3,4,5)")->fetchColumn();
     $stats['c2']['val'] = $db->query("SELECT COUNT(*) FROM usuarios WHERE id_rol = 6")->fetchColumn();
@@ -57,8 +56,8 @@ if ($role == 1) { // Superadmin
 } elseif ($role == 6) { // Alumno
     $stats['c1'] = ['label' => __('dash_stat_games_played'), 'val' => 0, 'icon' => 'fa-trophy', 'color' => 'blue'];
     $stats['c2'] = ['label' => __('dash_stat_avg_score'), 'val' => 0, 'icon' => 'fa-star', 'color' => 'yellow'];
-    $stats['c3'] = ['label' => 'Total Respuestas', 'val' => 0, 'icon' => 'fa-check-double', 'color' => 'green'];
-    $stats['c4'] = ['label' => 'Ranking Global', 'val' => '#-', 'icon' => 'fa-ranking-star', 'color' => 'purple'];
+    $stats['c3'] = ['label' => __('dash_stat_total_responses'), 'val' => 0, 'icon' => 'fa-check-double', 'color' => 'green'];
+    $stats['c4'] = ['label' => __('dash_stat_your_rankings'), 'val' => [], 'icon' => 'fa-ranking-star', 'color' => 'purple', 'is_ranking' => true];
 
     $stmt = $db->prepare("SELECT COUNT(DISTINCT id_partida) FROM jugadores_sesion WHERE id_usuario_registrado = ?");
     $stmt->execute([$uid]);
@@ -66,14 +65,46 @@ if ($role == 1) { // Superadmin
 
     $stmt = $db->prepare("SELECT AVG(puntuacion) FROM jugadores_sesion WHERE id_usuario_registrado = ?");
     $stmt->execute([$uid]);
-    $stats['c2']['val'] = round($stmt->fetchColumn() ?: 0);
+    $avgScore = $stmt->fetchColumn() ?: 0;
+    $stats['c2']['val'] = round($avgScore);
 
     $stmt = $db->prepare("SELECT COUNT(*) FROM respuestas_log r INNER JOIN jugadores_sesion j ON r.id_sesion = j.id_sesion WHERE j.id_usuario_registrado = ?");
     $stmt->execute([$uid]);
     $stats['c3']['val'] = $stmt->fetchColumn();
 
+    // --- LÓGICA DE RANKINGS ---
+    $stmtGlobal = $db->prepare("SELECT COUNT(*) + 1 FROM (SELECT AVG(puntuacion) as promedio FROM jugadores_sesion WHERE id_usuario_registrado IS NOT NULL GROUP BY id_usuario_registrado) as r WHERE promedio > ?");
+    $stmtGlobal->execute([$avgScore]);
+    $stats['c4']['val'][] = ['label' => __('dash_rank_global'), 'pos' => $stmtGlobal->fetchColumn()];
+
+    $stmtParent = $db->prepare("SELECT u.id_padre, p.id_rol FROM usuarios u LEFT JOIN usuarios p ON u.id_padre = p.id_usuario WHERE u.id_usuario = ?");
+    $stmtParent->execute([$uid]);
+    $parent = $stmtParent->fetch(PDO::FETCH_ASSOC);
+
+    if ($parent && $parent['id_padre']) {
+        $idPadre = $parent['id_padre'];
+        $rolPadre = $parent['id_rol'];
+        if ($rolPadre == 3) {
+            $stmtAcad = $db->prepare("SELECT id_padre FROM usuarios WHERE id_usuario = ?");
+            $stmtAcad->execute([$idPadre]);
+            $idPadre = $stmtAcad->fetchColumn() ?: $idPadre;
+        }
+        $stmtLocal = $db->prepare("
+            SELECT COUNT(*) + 1 FROM (
+                SELECT AVG(js.puntuacion) as promedio 
+                FROM jugadores_sesion js
+                JOIN usuarios u ON js.id_usuario_registrado = u.id_usuario
+                WHERE u.id_padre = ? OR u.id_usuario = ?
+                GROUP BY js.id_usuario_registrado
+            ) as r WHERE promedio > ?
+        ");
+        $stmtLocal->execute([$idPadre, $idPadre, $avgScore]);
+        $labelLocal = ($rolPadre == 4) ? __('dash_rank_professor') : __('dash_rank_academy');
+        $stats['c4']['val'][] = ['label' => $labelLocal, 'pos' => $stmtLocal->fetchColumn()];
+    }
+
 } else { // Profesores
-    $stats['c1']['label'] = "Mis Alumnos";
+    $stats['c1']['label'] = __('dash_stat_my_students');
     $stats['c1']['val'] = "-"; 
     $stmt = $db->prepare("SELECT COUNT(*) FROM preguntas WHERE id_propietario = ?");
     $stmt->execute([$uid]);
@@ -88,7 +119,7 @@ if ($role == 1) { // Superadmin
     $activeGames = $stmt->fetchColumn();
 }
 
-// DATOS PARA GRÁFICOS (Lógica intacta)
+// DATOS PARA GRÁFICOS
 $chartLabels = [];
 $chartData = [];
 $chartTypeLabels = [];
@@ -114,6 +145,19 @@ if ($role != 6) {
         $chartTypeData[] = $r['total'];
     }
 } else {
+    $sqlProgress = "SELECT DATE(ultima_conexion) as f, SUM(puntuacion) as total 
+                    FROM jugadores_sesion 
+                    WHERE id_usuario_registrado = $uid 
+                    AND ultima_conexion >= DATE(NOW()) - INTERVAL 7 DAY 
+                    GROUP BY DATE(ultima_conexion) 
+                    ORDER BY f ASC";
+    $resProgress = $db->query($sqlProgress)->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach($resProgress as $p) {
+        $chartLabels[] = date('d/m', strtotime($p['f']));
+        $chartData[] = (int)$p['total'];
+    }
+
     $sqlHits = "SELECT r.es_correcta, COUNT(*) as total 
                 FROM respuestas_log r 
                 JOIN jugadores_sesion j ON r.id_sesion = j.id_sesion 
@@ -125,7 +169,7 @@ if ($role != 6) {
         if($h['es_correcta'] == 1) $aciertos = $h['total'];
         else $fallos = $h['total'];
     }
-    $chartTypeLabels = ['Aciertos', 'Fallos'];
+    $chartTypeLabels = [__('dash_chart_hits'), __('dash_chart_misses')];
     $chartTypeData = [$aciertos, $fallos];
 }
 ?>
@@ -144,7 +188,7 @@ if ($role != 6) {
         <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
             <?php if($role == 6): ?>
                 <a href="play/index.php" target="_blank" class="btn-primary" style="text-decoration: none;">
-                    <i class="fa-solid fa-gamepad"></i> <span>Unirse a Partida</span>
+                    <i class="fa-solid fa-gamepad"></i> <span><?php echo __('dash_btn_join_game'); ?></span>
                 </a>
             <?php else: ?>
                 <?php if($activeGames > 0): ?>
@@ -169,25 +213,35 @@ if ($role != 6) {
     </div>
 
     <div class="stats-grid">
-        <?php foreach($stats as $key => $s): ?>
-        <div class="card stat-card stat-<?php echo $s['color']; ?>">
-            <div class="stat-info">
-                <p><?php echo $s['label']; ?></p>
+    <?php foreach($stats as $key => $s): ?>
+    <div class="card stat-card stat-<?php echo $s['color']; ?>">
+        <div class="stat-info">
+            <p><?php echo $s['label']; ?></p>
+            <?php if(isset($s['is_ranking']) && is_array($s['val'])): ?>
+                <div class="ranking-container" style="margin-top: 5px;">
+                    <?php foreach($s['val'] as $r): ?>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 2px 0;">
+                            <span style="font-size: 0.85rem; opacity: 0.8;"><?php echo $r['label']; ?>:</span>
+                            <span style="font-size: 1.1rem; font-weight: bold;">#<?php echo $r['pos']; ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
                 <h3><?php echo $s['val']; ?></h3>
-            </div>
-            <div class="stat-icon">
-                <i class="fa-solid <?php echo $s['icon']; ?>"></i>
-            </div>
+            <?php endif; ?>
         </div>
-        <?php endforeach; ?>
+        <div class="stat-icon">
+            <i class="fa-solid <?php echo $s['icon']; ?>"></i>
+        </div>
     </div>
+    <?php endforeach; ?>
+</div>
 
     <div class="charts-layout">
-        
         <div class="card">
             <h3 class="chart-header">
                 <i class="fa-solid fa-chart-area"></i> 
-                <?php echo ($role != 6) ? __('dash_chart_activity') : 'Progreso de Aprendizaje'; ?>
+                <?php echo ($role != 6) ? __('dash_chart_activity') : __('dash_chart_learning_progress'); ?>
             </h3>
             <div class="main-chart-container">
                 <canvas id="mainChart"></canvas>
@@ -202,69 +256,55 @@ if ($role != 6) {
             <div class="donut-chart-container">
                 <canvas id="secondaryChart"></canvas>
             </div>
-            
-            <div class="quick-actions-footer">
-            </div>
         </div>
     </div>
 </section>
 
 <script>
-    // Obtener color primario de las variables CSS para los gráficos
     const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#6366f1';
     
-    // --- GRÁFICO PRINCIPAL ---
     const ctxMain = document.getElementById('mainChart').getContext('2d');
     const mainChart = new Chart(ctxMain, {
         type: 'line',
         data: {
-            labels: <?php echo json_encode($chartLabels ?: ['Sin datos']); ?>,
+            labels: <?php echo json_encode($chartLabels ?: [__('key_no_data')]); ?>,
             datasets: [{
-            label: '<?php echo ($role != 6) ? "Partidas Creadas" : "Puntos"; ?>',
-            data: <?php echo json_encode($chartData ?: [0]); ?>,
-            borderColor: primaryColor,
-            backgroundColor: primaryColor + '15', // Opacidad suave al 15%
-            borderWidth: 3,
-            tension: 0.4,          // Suaviza la curva de la línea
-            fill: true,
-            pointRadius: 0,        // Oculta los puntos para limpiar la línea
-            pointHoverRadius: 6    // Solo muestra el punto al pasar el ratón
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-            legend: { display: false },
-            tooltip: { mode: 'index', intersect: false }
+                label: '<?php echo ($role != 6) ? __("dash_label_games_created") : __("dash_label_points"); ?>',
+                data: <?php echo json_encode($chartData ?: [0]); ?>,
+                borderColor: primaryColor,
+                backgroundColor: primaryColor + '15',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            }]
         },
-        scales: { 
-            y: { 
-                beginAtZero: true, 
-                grid: { 
-                    color: 'rgba(0, 0, 0, 0.05)', 
-                    drawBorder: false,
-                    borderDash: [5, 5] // Línea discontinua horizontal para menos carga visual
-                } 
-            }, 
-            x: { 
-                grid: { display: false } // Quita las líneas verticales
-            } 
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: { 
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false, borderDash: [5, 5] } 
+                }, 
+                x: { grid: { display: false } } 
+            }
         }
-    }
     });
 
-    // --- GRÁFICO SECUNDARIO ---
     const ctxSec = document.getElementById('secondaryChart').getContext('2d');
     const secChart = new Chart(ctxSec, {
         type: 'doughnut',
         data: {
-            labels: <?php echo json_encode($chartTypeLabels ?: ['Sin datos']); ?>,
+            labels: <?php echo json_encode($chartTypeLabels ?: [__('key_no_data')]); ?>,
             datasets: [{
                 data: <?php echo json_encode($chartTypeData ?: [1]); ?>,
-                backgroundColor: [
-                    '#3b82f6', '#ef4444', '#22c55e', '#eab308', '#a855f7'
-                ],
+                backgroundColor: ['#3b82f6', '#ef4444', '#22c55e', '#eab308', '#a855f7'],
                 borderWidth: 0
             }]
         },
