@@ -245,6 +245,20 @@
     "dash_btn_new_user": "Crear Usuario",
     "dash_btn_history": "Ver Historial",
     "dash_btn_active_games": "Número de xogos activos neste momento",
+    "key_role_user": "Usuario",
+    "dash_stat_total_responses": "Total de Respostas",
+    "dash_stat_your_rankings": "As túas Clasificacións",
+    "dash_rank_global": "Global",
+    "dash_rank_professor": "Profesor",
+    "dash_rank_academy": "Academia",
+    "dash_stat_my_students": "Os meus Alumnos",
+    "dash_btn_join_game": "Unirse á Partida",
+    "dash_chart_learning_progress": "Progreso de Aprendizaxe",
+    "dash_label_games_created": "Partidas Creadas",
+    "dash_label_points": "Puntos",
+    "dash_chart_hits": "Acertos",
+    "dash_chart_misses": "Fallos",
+    "key_no_data": "Sen datos",
     "tools_title": "Ferramentas",
     "diag_title": "Diagnóstico do Sistema",
     "diag_db_status": "Estado Base de Datos",
@@ -388,5 +402,6 @@
     "plan_unlimited": "0 para Ilimitado",
     "plan_delete_confirm": "Borrar este plan? Os usuarios asignados pasarán ao Plan Gratuíto (ID 1).",
     "plan_saved": "Plan gardado correctamente.",
-    "tooltip_questions_created": "Total de preguntas creadas"
+    "tooltip_questions_created": "Total de preguntas creadas",
+    "my_history": "O Meu Historial"
 }
