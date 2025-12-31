@@ -1,7 +1,19 @@
 <?php
 // play/index.php
+session_start();
+require_once '../config/db.php';
+
 $frases_file = __DIR__ . '/../locales/frases.json';
 $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}';
+
+// Inyección: Detectar si el alumno tiene Nick y Avatar ya configurados
+$loggedUser = null;
+if (isset($_SESSION['user_id'])) {
+    $db = (new Database())->getConnection();
+    $stmt = $db->prepare("SELECT nick, avatar_id FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $loggedUser = $stmt->fetch(PDO::FETCH_ASSOC);
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -179,7 +191,16 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
         <div class="logo-title">EduGame</div>
         <div class="login-box">
             <input type="text" inputmode="numeric" pattern="[0-9]*" id="inputPin" placeholder="PIN" maxlength="6" autocomplete="off">
-            <input type="text" id="inputNick" placeholder="Nick" maxlength="15">
+            
+            <?php if (!$loggedUser || empty($loggedUser['nick'])): ?>
+                <input type="text" id="inputNick" placeholder="Nick" maxlength="15">
+            <?php else: ?>
+                <div style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">
+                    Hola, <span id="displayLoggedNick"><?php echo htmlspecialchars($loggedUser['nick']); ?></span>
+                </div>
+                <input type="hidden" id="inputNick" value="<?php echo htmlspecialchars($loggedUser['nick']); ?>">
+            <?php endif; ?>
+
             <button class="btn-play" onclick="step1Login()" id="btnEnter">Entrar</button>
         </div>
     </div>
@@ -240,7 +261,7 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
             
             <div id="top3List" style="text-align:left; margin-top:20px; border-top:1px solid #eee; padding-top:10px;"></div>
             
-            <a href="../partidas" class="btn-play" style="text-decoration:none; display:block; margin-top:30px;" id="btnExit">Salir</a>
+            <a href="index.php" class="btn-play" style="text-decoration:none; display:block; margin-top:30px;" id="btnExit">Salir al Inicio</a>
         </div>
     </div>
 
@@ -285,7 +306,9 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
         const t = UI_TEXTS[currentLang];
         
         document.getElementById('inputPin').placeholder = t.pin;
-        document.getElementById('inputNick').placeholder = t.nick;
+        if(document.getElementById('inputNick').type !== 'hidden'){
+            document.getElementById('inputNick').placeholder = t.nick;
+        }
         document.getElementById('btnEnter').innerText = t.enter;
         document.getElementById('txtChooseAvatar').innerText = t.choose;
         document.getElementById('btnConfirmAvatar').innerText = t.ready;
@@ -332,8 +355,7 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
         if(!pin || !nick) return alert("Faltan datos");
         myNick = nick;
         try {
-            // --- CORRECCIÓN CLAVE: credentials: 'include' ---
-            // Esto asegura que se envíe la sesión PHP y se guarde el ID del alumno
+            // Nota: Se usa 'credentials: include' para que PHP reconozca al alumno logueado
             const res = await fetch('../api/juego.php', { 
                 method: 'POST', 
                 credentials: 'include', 
@@ -344,8 +366,18 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
             if(json.success) { 
                 mySessionId = json.id_sesion; 
                 gamePartidaId = json.id_partida;
-                showScreen('screen-avatar'); 
                 document.getElementById('myNickDisplay').innerText = myNick;
+                
+                // Si la API dice que ya tenemos avatar (del perfil), saltamos la pantalla
+                if (json.has_avatar) {
+                    const avatarDelPerfil = <?php echo $loggedUser['avatar_id'] ?? 0; ?>;
+                    document.getElementById('myAvatarDisplay').innerText = getAvatarIcon(avatarDelPerfil);
+                    document.getElementById('playerFooter').style.display = 'flex';
+                    showWaitScreen("Ya estás dentro", "Mira la pantalla");
+                    startPolling();
+                } else {
+                    showScreen('screen-avatar'); 
+                }
             } 
             else { alert(json.error); }
         } catch(e) { console.error(e); alert("Error de conexión"); }
@@ -372,25 +404,22 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
             if(!gamePartidaId) return;
             
             let gameData = null;
-            let source = 'none';
 
-            // 1. JSON Estático
+            // 1. Prioridad: Archivo JSON caché (Optimización original)
             try {
                 const r = await fetch(`../temp/partida_${gamePartidaId}.json?t=${Date.now()}`);
                 if(r.ok) {
-                    const json = await r.json(); // Corregido res -> r
-                    if(json.success) { gameData = json.data; source = 'json'; }
+                    const json = await r.json(); 
+                    if(json.success) { gameData = json.data; }
                 }
             } catch(e) {}
 
-            // 2. Fallback API en momentos clave (resultados)
-            const needScoreUpdate = (gameData && gameData.estado_pregunta === 'resultados' && lastPhase !== 'resultados');
-            
-            if (!gameData || needScoreUpdate) {
+            // 2. Fallback: API directa en momentos clave (resultados)
+            if (!gameData || (gameData.estado_pregunta === 'resultados' && lastPhase !== 'resultados')) {
                 try {
                     const res = await fetch('../api/juego.php', {method:'POST', body:JSON.stringify({action:'estado_jugador', id_sesion:mySessionId})});
                     const json = await res.json();
-                    if(json.success) { gameData = json.data; source = 'api'; }
+                    if(json.success) { gameData = json.data; }
                 } catch(e){}
             }
 
@@ -398,6 +427,8 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
 
         }, 1500); 
     }
+
+    let timerInterval = null; // Variable global para el contador
 
     function updateUI(data) {
         const t = UI_TEXTS[currentLang];
@@ -411,85 +442,81 @@ $frases_json = file_exists($frases_file) ? file_get_contents($frases_file) : '{}
         document.getElementById('waitQNum').innerText = "#" + qIdx;
         document.getElementById('playQNum').innerText = "#" + qIdx;
 
-        // ESTADOS
+        // --- MANEJO DE ESTADOS ---
         if (data.estado === 'sala_espera') {
             showWaitScreen(t.wait, t.wait_sub);
+            if (timerInterval) clearInterval(timerInterval);
         } 
         else if (data.estado === 'jugando') {
-            
             if (data.estado_pregunta === 'intro') {
                 showWaitScreen(t.q + " " + qIdx, t.wait_others);
+                if (timerInterval) clearInterval(timerInterval);
             }
             else if (data.estado_pregunta === 'respondiendo') {
-                const qDiv = document.getElementById('playerQuestionText');
-                if(data.texto_pregunta) {
-                    qDiv.innerText = data.texto_pregunta;
-                    qDiv.style.display = 'block'; 
-                } else {
-                    qDiv.style.display = 'none';
+                // Sincronización del cronómetro dinámica por cada pregunta específica
+                if (window.lastTimerQ !== qIdx) {
+                    window.lastTimerQ = qIdx;
+                    if (window.timerInterval) clearInterval(window.timerInterval);
+                    
+                    // Forzamos el uso del tiempo asignado a la pregunta
+                    let left = 20; // Fallback extremo
+                    const tLimite = parseInt(data.tiempo_limite);
+                    const tRestante = parseInt(data.tiempo_restante);
+
+                    if (tRestante > 0) {
+                        left = tRestante;
+                    } else if (tLimite > 0) {
+                        left = tLimite;
+                    }
+                               
+                    const timerEl = document.getElementById('timer');
+                    if(timerEl) {
+                        timerEl.innerText = left;
+                        window.timerInterval = setInterval(() => {
+                            if (left > 0) {
+                                left--;
+                                timerEl.innerText = left;
+                            } else {
+                                clearInterval(window.timerInterval);
+                                timerEl.innerText = 0;
+                            }
+                        }, 1000);
+                    }
                 }
-                
+
                 if (lastPhase !== 'respondiendo') {
                     showScreen('screen-play');
                     if (data.json_opciones) renderButtons(data.json_opciones); 
                 }
-
-                let left = 0;
-                if (data.tiempo_inicio_pregunta) {
-                    const tStart = data.tiempo_inicio_pregunta.replace(/-/g, "/");
-                    const startTime = new Date(tStart).getTime();
-                    const now = Date.now(); 
-                    const elapsed = Math.floor((now - startTime) / 1000);
-                    const limit = parseInt(data.tiempo_limite);
-                    left = Math.max(0, limit - elapsed);
-                }
-                const timerEl = document.getElementById('timer');
-                if(timerEl) timerEl.innerText = left;
             }
             else if (data.estado_pregunta === 'resultados') {
+                if (timerInterval) clearInterval(timerInterval);
                 if (lastPhase !== 'resultados') {
                     showScreen('screen-feedback');
-                    
                     const racha = parseInt(data.racha || 0);
                     const banner = document.getElementById('fbBanner');
-                    const icon = document.getElementById('fbIcon');
-                    const title = document.getElementById('fbTitle');
-                    const msg = document.getElementById('fbMsg');
                     const streakDisplay = document.getElementById('fbStreak');
-
                     streakDisplay.innerText = racha;
 
                     if (racha > 0) {
                         banner.className = "feedback-banner";
-                        title.innerText = t.correct;
-                        icon.className = "fa-solid fa-check fb-icon";
-                        msg.innerText = getRandomPhrase('subiendo') || getRandomPhrase('general');
+                        document.getElementById('fbTitle').innerText = t.correct;
+                        document.getElementById('fbIcon').className = "fa-solid fa-check fb-icon";
                     } else {
                         banner.className = "feedback-banner wrong";
-                        title.innerText = t.wrong;
-                        icon.className = "fa-solid fa-xmark fb-icon";
-                        msg.innerText = getRandomPhrase('bajando') || getRandomPhrase('general');
+                        document.getElementById('fbTitle').innerText = t.wrong;
+                        document.getElementById('fbIcon').className = "fa-solid fa-xmark fb-icon";
                     }
+                    document.getElementById('fbMsg').innerText = getRandomPhrase(racha > 0 ? 'subiendo' : 'bajando');
                 }
             }
         }
         else if (data.estado === 'finalizada') {
+            if (timerInterval) clearInterval(timerInterval);
             if (lastPhase !== 'finalizada') {
                 showScreen('screen-end');
                 document.getElementById('playerFooter').style.display = 'none';
                 document.getElementById('finalScoreDisplay').innerText = currentScore;
-                
-                if(data.top_ranking) {
-                    let html = '';
-                    data.top_ranking.forEach((p, i) => {
-                       let medal = i===0?'🥇':(i===1?'🥈':'🥉');
-                       html += `<div class="podium-row">
-                                    <span><span class="rank-medal">${medal}</span> <b>${p.nombre_nick}</b></span>
-                                    <b>${p.puntuacion}</b>
-                                </div>`; 
-                    });
-                    document.getElementById('top3List').innerHTML = html;
-                }
             }
         }
         lastPhase = data.estado_pregunta || data.estado; 
