@@ -77,7 +77,39 @@ $pin = $_GET['pin'] ?? '';
         
         .intro-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        .ranking-container { flex:1; padding: 40px; display:flex; flex-direction:column; align-items:center; justify-content:center; width: 100%; overflow-y:auto; }
+        /* Ranking integrado: eliminamos el scroll y fondos para que fluya bajo el gráfico */
+        .ranking-container { 
+            width: 100%; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background: transparent; 
+            overflow: visible; /* Elimina el efecto iframe */
+            padding-bottom: 50px;
+        }
+
+        /* Resaltado de la respuesta correcta en el gráfico */
+        .correct-answer-indicator { 
+            border: 6px solid #ffffff; 
+            box-shadow: 0 0 40px #ffffff;
+            transform: scale(1.1);
+            z-index: 5;
+            position: relative;
+        }
+        /* Icono de Check sobre la barra correcta */
+        .correct-answer-indicator::after {
+            content: '✓';
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
         .rank-row { 
             background: white; color: #333; width: 80%; padding: 20px 40px; margin: 10px 0; 
             border-radius: 15px; font-size: 2.5rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;
@@ -85,7 +117,37 @@ $pin = $_GET['pin'] ?? '';
         }
         .rank-row.up { border-left: 15px solid #22c55e; animation: slideIn 0.5s; }
         @keyframes slideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
-    </style>
+
+        /* Gráfico Centrado */
+#resultsChartContainer { 
+    display:none; width:90%; max-width:800px; margin: 40px auto; 
+    background: rgba(255,255,255,0.05); padding: 40px; border-radius: 30px; 
+    backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+}
+.chart-container { display: flex; align-items: flex-end; justify-content: center; gap: 30px; height: 250px; }
+.bar { 
+    width: 70px; border-radius: 12px 12px 4px 4px; position: relative;
+    transition: height 1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* Podium Innovador */
+.podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 15px; height: 400px; margin-top: 40px; perspective: 1000px; }
+.podium-box { 
+    width: 180px; text-align: center; position: relative; 
+    transform-style: preserve-3d; animation: float 4s infinite ease-in-out;
+}
+.box-1 { height: 260px; background: linear-gradient(135deg, #ffd700, #f59e0b); order: 2; z-index: 3; }
+.box-2 { height: 180px; background: linear-gradient(135deg, #e2e8f0, #94a3b8); order: 1; z-index: 2; }
+.box-3 { height: 120px; background: linear-gradient(135deg, #d97706, #92400e); order: 3; z-index: 1; }
+
+.podium-box { border-radius: 20px 20px 0 0; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px; color: white; font-weight: 900; font-size: 4rem; }
+.winner-crown { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); font-size: 4rem; animation: crownRotate 3s infinite; }
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes crownRotate { 0% { transform: translateX(-50%) rotate(-10deg); } 50% { transform: translateX(-50%) rotate(10deg); } 100% { transform: translateX(-50%) rotate(-10deg); } }
+</style>
+
 </head>
 <body>
 
@@ -149,6 +211,9 @@ $pin = $_GET['pin'] ?? '';
                 </button>
             </div>
 
+        </div>
+        <div id="resultsChartContainer" style="display:none; width:80%; margin-bottom:30px;">
+            <div class="chart-container" id="resultsChart"></div>
         </div>
         <div class="ranking-container" id="rankingList"></div>
     </div>
@@ -234,7 +299,6 @@ $pin = $_GET['pin'] ?? '';
         if(!gameId) return;
         try {
             let state = null;
-            // IMPORTANTE: Consultar API directa para sincronización instantánea
             const res = await fetch(`api/partidas.php?action=estado_juego&codigo_pin=${PIN}`);
             if(res.ok) {
                 const json = await res.json();
@@ -243,15 +307,12 @@ $pin = $_GET['pin'] ?? '';
 
             if(!state) return;
 
-            // --- ESTADOS ---
-
+            // --- MANEJO DE ESTADOS ---
             if(state.estado === 'sala_espera') {
                 switchScreen('screen-lobby');
                 loadLobbyPlayers(gameId);
             }
             else if (state.estado === 'jugando') {
-                
-                // FASE: INTRO
                 if(state.estado_pregunta === 'intro') {
                     switchScreen('screen-game');
                     document.getElementById('introOverlay').style.display = 'flex';
@@ -264,7 +325,6 @@ $pin = $_GET['pin'] ?? '';
                         startIntroTimer(state.id_partida);
                     }
                 }
-                // FASE: RESPONDIENDO
                 else if(state.estado_pregunta === 'respondiendo') {
                     switchScreen('screen-game');
                     document.getElementById('introOverlay').style.display = 'none';
@@ -276,7 +336,6 @@ $pin = $_GET['pin'] ?? '';
                     }
                     currentPhase = 'respondiendo';
 
-                    // Tiempo
                     let left = 0;
                     if (state.tiempo_inicio_pregunta) {
                         const startTime = new Date(state.tiempo_inicio_pregunta.replace(" ", "T")).getTime();
@@ -289,30 +348,50 @@ $pin = $_GET['pin'] ?? '';
                     if(state.respuestas_recibidas !== undefined) {
                         document.getElementById('answersCounter').innerText = `${state.respuestas_recibidas} / ${state.total_jugadores} Resp.`;
                     }
-
-                    // AUTO-AVANCE SOLO POR TIEMPO:
-                    // Si el tiempo acaba, avanzamos.
-                    // Si todos responden, el servidor cambia el estado y lo captamos en el próximo fetch.
-                    if(left === 0 && !window.processingNext) {
-                        window.processingNext = true;
-                        setTimeout(() => fetch('api/partidas.php', { method: 'POST', body: JSON.stringify({ action: 'siguiente_fase', id_partida: gameId }) }), 1000);
-                    }
                 }
-                // FASE: RESULTADOS (RANKING)
                 else if(state.estado_pregunta === 'resultados') {
                     if(currentPhase !== 'resultados') {
                         switchScreen('screen-ranking');
                         loadRanking(state.id_partida);
                         currentPhase = 'resultados';
                         window.processingNext = false;
-                        // AQUÍ SE PARA EL FLUJO. Espera a los botones.
                     }
                 }
             }
             else if (state.estado === 'finalizada') {
-                document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100%; flex-direction:column; background:#111; color:white; background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url(\"assets/img/bg-proyector.jpg\"); background-size:cover;'><h1 style='font-size:6rem; color:#facc15; margin-bottom:20px; text-shadow:0 0 20px black;'>¡Fin de la Partida!</h1><p style='font-size:2.5rem;'>Gracias por jugar</p><a href='index.php' style='color:white; font-size:1.5rem; margin-top:40px; border:2px solid white; padding:15px 40px; border-radius:50px; text-decoration:none; transition:0.3s;'>Salir</a></div>";
+                const resRanking = await fetch(`api/partidas.php?action=ranking_parcial&id_partida=${gameId}`);
+                const jsonRanking = await resRanking.json();
+                const r = jsonRanking.ranking;
+                
+                gameId = null; // Detiene la sincronización
+
+                document.body.innerHTML = `
+                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background: radial-gradient(circle, #25076b, #111); text-align:center; color:white; overflow:hidden;">
+                    <h1 style="font-size:5rem; color:#facc15; text-shadow: 0 0 20px rgba(0,0,0,1); margin-bottom:20px;">🏆 PODIUM FINAL 🏆</h1>
+                    <div class="podium-wrap" style="display:flex; align-items:flex-end; justify-content:center; gap:20px; height:400px; margin-bottom:40px;">
+                        ${r[1] ? `
+                        <div class="podium-box">
+                            <div style="font-size:1.5rem; font-weight:bold; margin-bottom:10px;">${r[1].nombre_nick}</div>
+                            <div style="height:180px; background:linear-gradient(135deg, #e2e8f0, #94a3b8); width:180px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:4rem; font-weight:900;">2</div>
+                            <div style="margin-top:10px;">${r[1].puntuacion} pts</div>
+                        </div>` : ''}
+                        ${r[0] ? `
+                        <div class="podium-box">
+                            <div style="font-size:2.5rem; color:#facc15; font-weight:900; margin-bottom:15px;">👑 ${r[0].nombre_nick}</div>
+                            <div style="height:280px; background:linear-gradient(135deg, #ffd700, #f59e0b); width:220px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:6rem; font-weight:900; box-shadow:0 0 40px rgba(250,204,21,0.4);">1</div>
+                            <div style="font-size:1.8rem; font-weight:bold; margin-top:10px;">${r[0].puntuacion} pts</div>
+                        </div>` : ''}
+                        ${r[2] ? `
+                        <div class="podium-box">
+                            <div style="font-size:1.5rem; font-weight:bold; margin-bottom:10px;">${r[2].nombre_nick}</div>
+                            <div style="height:120px; background:linear-gradient(135deg, #d97706, #92400e); width:180px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:4rem; font-weight:900;">3</div>
+                            <div style="margin-top:10px;">${r[2].puntuacion} pts</div>
+                        </div>` : ''}
+                    </div>
+                    <button onclick="location.href='index.php'" class="nav-btn" style="margin-top:40px; padding:15px 60px; font-size:1.5rem; background:#fff; color:#333; border-radius:50px; font-weight:900; border:none; cursor:pointer;">FINALIZAR</button>
+                </div>`;
             }
-        } catch(e) {}
+        } catch(e) { console.error("Error en syncLoop:", e); }
     }
 
     async function loadLobbyPlayers(id) {
@@ -372,30 +451,54 @@ $pin = $_GET['pin'] ?? '';
     }
 
     async function loadRanking(idPartida) {
-        const res = await fetch(`api/partidas.php?action=ranking_parcial&id_partida=${idPartida}`);
-        const json = await res.json();
-        const div = document.getElementById('rankingList');
-        div.innerHTML = '';
-        if(json.success) {
-            json.ranking.forEach((p, i) => {
-                const pid = p.id_sesion || p.nombre_nick;
-                const score = parseInt(p.puntuacion);
-                
-                let isUp = false;
-                if(prevScores[pid] !== undefined && score > prevScores[pid]) {
-                    isUp = true;
-                }
-                prevScores[pid] = score;
+        // 1. Obtener estadísticas y estado actual simultáneamente
+        const [resStats, resState] = await Promise.all([
+            fetch(`api/partidas.php?action=get_stats_pregunta&id_partida=${idPartida}`),
+            fetch(`api/partidas.php?action=estado_juego&codigo_pin=${PIN}`)
+        ]);
+        
+        const stats = await resStats.json();
+        const stateJson = await resState.json();
+        
+        // Identificar cuál es la respuesta correcta leyendo las opciones de la pregunta
+        const opciones = JSON.parse(stateJson.data.json_opciones || "[]");
+        const indiceCorrecto = opciones.findIndex(o => o.es_correcta);
 
-                const rowClass = isUp ? 'rank-row up' : 'rank-row';
-                
-                div.innerHTML += `
-                    <div class="${rowClass}">
+        // 2. Renderizar Gráfico
+        const chartContainer = document.getElementById('resultsChartContainer');
+        const chartDiv = document.getElementById('resultsChart');
+        chartDiv.innerHTML = '';
+        chartContainer.style.display = 'block';
+
+        const colores = ['#ef4444', '#3b82f6', '#eab308', '#22c55e'];
+        for(let i=0; i<4; i++) {
+            const dato = stats.find(s => parseInt(s.indice) === i);
+            const total = dato ? parseInt(dato.total) : 0;
+            const bar = document.createElement('div');
+            
+            // Si es el índice correcto, aplicamos la clase de resaltado visual
+            bar.className = 'bar' + (i === indiceCorrecto ? ' correct-answer-indicator' : '');
+            bar.style.height = Math.max(total * 40, 20) + 'px';
+            bar.style.backgroundColor = colores[i];
+            bar.innerHTML = `<span class="bar-value">${total}</span><span class="bar-label">${shapes[i]}</span>`;
+            chartDiv.appendChild(bar);
+        }
+
+        // 3. Cargar Ranking Parcial integrado debajo del gráfico
+        const resRank = await fetch(`api/partidas.php?action=ranking_parcial&id_partida=${idPartida}`);
+        const jsonRank = await resRank.json();
+        const divRank = document.getElementById('rankingList');
+        divRank.innerHTML = '';
+        
+        if(jsonRank.success) {
+            jsonRank.ranking.forEach((p, i) => {
+                divRank.innerHTML += `
+                    <div class="rank-row" style="background: rgba(255,255,255,0.9); color: #333; margin: 10px 0; padding: 15px 40px; border-radius: 15px; width: 95%;">
                         <div style="display:flex; align-items:center; gap:20px;">
-                            <span style="background:#333; color:white; width:50px; height:50px; border-radius:50%; display:flex; justify-content:center; align-items:center;">${i+1}</span>
-                            <span>${getAvatar(p.avatar_id)} ${p.nombre_nick}</span>
+                            <span style="background:#46178f; color:white; width:45px; height:45px; border-radius:50%; display:flex; justify-content:center; align-items:center; font-weight:bold;">${i+1}</span>
+                            <span style="font-size:2rem; font-weight:800;">${getAvatar(p.avatar_id)} ${p.nombre_nick}</span>
                         </div>
-                        <span>${p.puntuacion} pts</span>
+                        <span style="font-size:2rem; font-weight:900;">${p.puntuacion} pts</span>
                     </div>`;
             });
         }
