@@ -25,44 +25,48 @@ try {
 // --- FUNCIONES ---
 
 function unirsePartida($db, $data) {
-    $pin = $data['pin'];
-    $idUsuarioRegistrado = $_SESSION['user_id'] ?? 0;
+    $pin = $data['pin'] ?? '';
+    // Aseguramos NULL si no está logueado para que no falle la FK de la base de datos
+    $idUsuarioRegistrado = (isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0) ? $_SESSION['user_id'] : null;
     
-    // Si el usuario está registrado, intentamos recuperar su Nick y Avatar del perfil
-    if ($idUsuarioRegistrado > 0) {
+    if ($idUsuarioRegistrado) {
         $stmtU = $db->prepare("SELECT nick, avatar_id FROM usuarios WHERE id_usuario = ?");
         $stmtU->execute([$idUsuarioRegistrado]);
         $uProfile = $stmtU->fetch(PDO::FETCH_ASSOC);
-        
-        $nick = !empty($uProfile['nick']) ? $uProfile['nick'] : trim($data['nick']);
+        $nick = !empty($uProfile['nick']) ? $uProfile['nick'] : trim($data['nick'] ?? '');
         $avatarId = ($uProfile['avatar_id'] > 0) ? $uProfile['avatar_id'] : 0;
     } else {
-        $nick = trim($data['nick']);
+        $nick = trim($data['nick'] ?? '');
         $avatarId = 0; 
     }
 
-    if (empty($nick)) throw new Exception("Debes introducir un apodo.");
+    if (empty($nick)) throw new Exception("¡Ups! No puedes jugar sin un apodo.");
     
-    $stmt = $db->prepare("SELECT id_partida, estado, id_anfitrion FROM partidas WHERE codigo_pin = ? AND estado IN ('sala_espera', 'creada')");
+    $stmt = $db->prepare("SELECT id_partida, estado FROM partidas WHERE codigo_pin = ? AND estado IN ('sala_espera', 'creada')");
     $stmt->execute([$pin]);
     $partida = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$partida) throw new Exception("Partida no encontrada o ya iniciada.");
+    if (!$partida) throw new Exception("No encontramos esa partida o ya ha empezado. ¡Llegas tarde!");
 
     $stmtNick = $db->prepare("SELECT COUNT(*) FROM jugadores_sesion WHERE id_partida = ? AND nombre_nick = ?");
     $stmtNick->execute([$partida['id_partida'], $nick]);
-    if ($stmtNick->fetchColumn() > 0) throw new Exception("Ese nombre ya está en uso.");
+    if ($stmtNick->fetchColumn() > 0) throw new Exception("Ese nombre ya está pillado. Sé más original.");
 
-    $sql = "INSERT INTO jugadores_sesion (id_partida, nombre_nick, avatar_id, ip, id_usuario_registrado) VALUES (?, ?, ?, ?, ?)";
-    $db->prepare($sql)->execute([$partida['id_partida'], $nick, $avatarId, $_SERVER['REMOTE_ADDR'], $idUsuarioRegistrado]);
-    $idSesion = $db->lastInsertId();
-    
-    echo json_encode([
-        'success' => true, 
-        'id_sesion' => $idSesion, 
-        'id_partida' => $partida['id_partida'], 
-        'has_avatar' => ($avatarId > 0)
-    ]);
+    try {
+        $sql = "INSERT INTO jugadores_sesion (id_partida, nombre_nick, avatar_id, ip, id_usuario_registrado) VALUES (?, ?, ?, ?, ?)";
+        $db->prepare($sql)->execute([$partida['id_partida'], $nick, $avatarId, $_SERVER['REMOTE_ADDR'], $idUsuarioRegistrado]);
+        
+        echo json_encode([
+            'success' => true, 
+            'id_sesion' => $db->lastInsertId(), 
+            'id_partida' => $partida['id_partida'],
+            'nick' => $nick,
+            'has_avatar' => ($avatarId > 0)
+        ]);
+    } catch (PDOException $e) {
+        // Mensaje comprensible para humanos ante errores de integridad o base de datos
+        throw new Exception("Lo sentimos, hubo un problema al entrar en la partida. Por favor, inténtalo de nuevo.");
+    }
 }
 
 function seleccionarAvatar($db, $data) {
@@ -132,21 +136,6 @@ function procesarRespuesta($db, $data) {
     $db->prepare("INSERT INTO respuestas_log (id_sesion, id_pregunta, respuesta_json, es_correcta, tiempo_tardado) VALUES (?, ?, ?, ?, ?)")
        ->execute([$idSesion, $info['id_pregunta'], $respuestaJson, $esCorrecta ? 1 : 0, $segundosTranscurridos ?? 0]);
 
-    // --- CORRECCIÓN: AVANCE AUTOMÁTICO Y REGENERACIÓN DE CACHÉ ---
-    $stmtTotal = $db->prepare("SELECT COUNT(*) FROM jugadores_sesion WHERE id_partida = ? AND avatar_id > 0");
-    $stmtTotal->execute([$info['id_partida']]);
-    $totalJugadores = $stmtTotal->fetchColumn();
-
-    $stmtResp = $db->prepare("SELECT COUNT(*) FROM respuestas_log rl JOIN jugadores_sesion js ON rl.id_sesion = js.id_sesion WHERE js.id_partida = ? AND rl.id_pregunta = ?");
-    $stmtResp->execute([$info['id_partida'], $info['id_pregunta']]);
-    $respuestasActuales = $stmtResp->fetchColumn();
-
-    if ($respuestasActuales >= $totalJugadores) {
-        $db->prepare("UPDATE partidas SET estado_pregunta = 'resultados', tiempo_inicio_pregunta = NULL WHERE id_partida = ?")->execute([$info['id_partida']]);
-        // IMPORTANTE: Regenerar el archivo para el proyector
-        actualizarFicheroCache($db, $info['id_partida']);
-    }
-
     echo json_encode(['success' => true, 'correcta' => $esCorrecta, 'puntos' => $puntosGanados]);
 }
 
@@ -189,12 +178,15 @@ function obtenerEstado($db, $idSesion) {
 
     if (!$data) { echo json_encode(['error' => 'Sesión no encontrada']); return; }
     
+    // ASEGURAMOS QUE EL TIEMPO LÍMITE SEA SIEMPRE UN ENTERO PARA EL CONTADOR
+    $data['tiempo_limite'] = (int)($data['tiempo_limite'] ?? 0);
+    
     if ($data['estado_pregunta'] === 'respondiendo' && $data['tiempo_inicio_pregunta']) {
         $inicio = new DateTime($data['tiempo_inicio_pregunta']);
         $ahora = new DateTime();
         $diff = $ahora->getTimestamp() - $inicio->getTimestamp();
-        $restante = (int)$data['tiempo_limite'] - $diff;
-        $data['tiempo_restante'] = $restante > 0 ? $restante : 0;
+        $restante = $data['tiempo_limite'] - $diff;
+        $data['tiempo_restante'] = $restante > 0 ? (int)$restante : 0;
     } else {
         $data['tiempo_restante'] = 0;
     }

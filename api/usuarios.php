@@ -373,77 +373,95 @@ function toggleStatusUsuario($db, $uid, $urole, $data) {
 }
 
 function actualizarPerfilPropio($db, $uid) {
-    // Alumno solo actualiza idioma, nick y avatar
-    if ($_SESSION['user_role'] == 6) {
-        $stmt = $db->prepare("SELECT nombre, idioma_pref FROM usuarios WHERE id_usuario = ?");
-        $stmt->execute([$uid]);
-        $curr = $stmt->fetch();
-        $nombre = $curr['nombre']; // Mantiene nombre original
-        $idioma = $_POST['idioma_pref'] ?? $curr['idioma_pref'];
-    } else {
-        $nombre = $_POST['nombre'] ?? '';
-        $idioma = $_POST['idioma_pref'] ?? 'es';
-    }
-    
-    $nick   = $_POST['nick'] ?? null;
-    $avatar_id = $_POST['avatar_id'] ?? 1;
-    $tema   = $_POST['tema_pref'] ?? null;
-    $fotoPath = null;
-    
-    // --- LÓGICA DE FOTO CON PROCESAMIENTO WEBP ---
-    if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === 0) {
-        // 1. Obtener ID Padre
-        $stmtF = $db->prepare("SELECT id_padre FROM usuarios WHERE id_usuario = ?");
-        $stmtF->execute([$uid]);
-        $idP = $stmtF->fetchColumn() ?: 0;
-        
-        // 2. Obtener NIF (del POST o de la BD si es necesario para el nombre del archivo)
-        $nif = $_POST['nif'];
-        if (empty($nif)) {
-            $stmtN = $db->prepare("SELECT nif FROM datos_fiscales WHERE id_usuario = ?");
-            $stmtN->execute([$uid]);
-            $nif = $stmtN->fetchColumn() ?: 'sinDni';
-        }
-
-        // 3. Subir y procesar (Función helper que genera WebP y Original)
-        $fotoPath = subirFotoPersonalizada($_FILES['foto_perfil'], $idP, $uid, $nif);
-    }
-
     $db->beginTransaction();
-    $updates = ["nombre = ?", "idioma_pref = ?"];
-    $params = [$nombre, $idioma];
     
-    if ($nick !== null) { $updates[] = "nick = ?"; $params[] = $nick; }
-    $updates[] = "avatar_id = ?"; $params[] = (int)$avatar_id;
-    if ($fotoPath) { $updates[] = "foto_perfil = ?"; $params[] = $fotoPath; }
-    if ($tema) { $updates[] = "tema_pref = ?"; $params[] = $tema; }
+    // 1. Obtener datos actuales para mantener coherencia en la sesión
+    $stmtCurrent = $db->prepare("SELECT u.*, df.nif FROM usuarios u LEFT JOIN datos_fiscales df ON u.id_usuario = df.id_usuario WHERE u.id_usuario = ?");
+    $stmtCurrent->execute([$uid]);
+    $current = $stmtCurrent->fetch(PDO::FETCH_ASSOC);
+
+    $updates = [];
+    $params = [];
+
+    // Solo añadimos a la consulta lo que realmente viene en el formulario (isset)
+    if (isset($_POST['nombre']) && $_SESSION['user_role'] != 6) {
+        $updates[] = "nombre = ?";
+        $params[] = $_POST['nombre'];
+        $_SESSION['user_name'] = $_POST['nombre'];
+    }
+
+    if (isset($_POST['idioma_pref'])) {
+        $updates[] = "idioma_pref = ?";
+        $params[] = $_POST['idioma_pref'];
+        $_SESSION['lang'] = $_POST['idioma_pref'];
+    }
+
+    if (isset($_POST['nick'])) {
+        $updates[] = "nick = ?";
+        $params[] = $_POST['nick'];
+    }
+
+    if (isset($_POST['avatar_id'])) {
+        $updates[] = "avatar_id = ?";
+        $params[] = (int)$_POST['avatar_id'];
+    }
+
+    if (isset($_POST['tema_pref'])) {
+        $updates[] = "tema_pref = ?";
+        $params[] = $_POST['tema_pref'];
+        $_SESSION['tema_pref'] = $_POST['tema_pref'];
+    }
+
     if (!empty($_POST['new_password'])) {
         $updates[] = "contrasena = ?";
         $params[] = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
     }
-    
-    $params[] = $uid;
-    $db->prepare("UPDATE usuarios SET " . implode(", ", $updates) . " WHERE id_usuario = ?")->execute($params);
 
-    // Mantenemos la actualización de datos fiscales para roles no-alumno
-    $sqlF = "INSERT INTO datos_fiscales (id_usuario, razon_social, nombre_negocio, nif, roi, telefono, direccion, direccion_numero, cp, id_pais, id_provincia, id_ciudad) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE razon_social=VALUES(razon_social), nombre_negocio=VALUES(nombre_negocio), nif=VALUES(nif), roi=VALUES(roi), telefono=VALUES(telefono), direccion=VALUES(direccion), direccion_numero=VALUES(direccion_numero), cp=VALUES(cp), id_pais=VALUES(id_pais), id_provincia=VALUES(id_provincia), id_ciudad=VALUES(id_ciudad)";
-    $db->prepare($sqlF)->execute([
-        $uid, 
-        $_POST['razon_social']??'', $_POST['nombre_negocio']??'', 
-        strtoupper($_POST['nif']??''), strtoupper($_POST['roi']??''), 
-        $_POST['telefono']??'', $_POST['direccion']??'', 
-        $_POST['direccion_numero']??'', $_POST['cp']??'', 
-        $_POST['id_pais']??'ES', 
-        !empty($_POST['id_provincia'])?$_POST['id_provincia']:null, 
-        !empty($_POST['id_ciudad'])?$_POST['id_ciudad']:null
-    ]);
-
-    if ($_SESSION['user_role'] != 6) {
-        $_SESSION['user_name'] = $nombre;
+    // Lógica de Foto (Dual WebP + Original)
+    $fotoPath = null;
+    if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === 0) {
+        $idP = $current['id_padre'] ?: 0;
+        $nif = $_POST['nif'] ?? $current['nif'] ?? 'sinDni';
+        $fotoPath = subirFotoPersonalizada($_FILES['foto_perfil'], $idP, $uid, $nif);
+        if ($fotoPath) {
+            $updates[] = "foto_perfil = ?";
+            $params[] = $fotoPath;
+            $_SESSION['user_photo'] = $fotoPath;
+        }
     }
-    $_SESSION['lang'] = $idioma;
-    if($tema) $_SESSION['tema_pref'] = $tema;
-    if($fotoPath) $_SESSION['user_photo'] = $fotoPath;
+
+    // Ejecutar actualización de la tabla usuarios solo si hay cambios
+    if (!empty($updates)) {
+        $params[] = $uid;
+        $db->prepare("UPDATE usuarios SET " . implode(", ", $updates) . " WHERE id_usuario = ?")->execute($params);
+    }
+
+    // 2. Datos Fiscales: SOLO si se están enviando campos fiscales en este formulario
+    // Esto evita que al cambiar el tema o el password se borren los datos fiscales
+    if (isset($_POST['razon_social']) || isset($_POST['nif'])) {
+        $sqlF = "INSERT INTO datos_fiscales (id_usuario, razon_social, nombre_negocio, nif, roi, telefono, direccion, direccion_numero, cp, id_pais, id_provincia, id_ciudad) 
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?) 
+                 ON DUPLICATE KEY UPDATE 
+                 razon_social=VALUES(razon_social), nombre_negocio=VALUES(nombre_negocio), nif=VALUES(nif), roi=VALUES(roi), 
+                 telefono=VALUES(telefono), direccion=VALUES(direccion), direccion_numero=VALUES(direccion_numero), cp=VALUES(cp), 
+                 id_pais=VALUES(id_pais), id_provincia=VALUES(id_provincia), id_ciudad=VALUES(id_ciudad)";
+        
+        $db->prepare($sqlF)->execute([
+            $uid, 
+            $_POST['razon_social'] ?? '', 
+            $_POST['nombre_negocio'] ?? '', 
+            strtoupper($_POST['nif'] ?? ''), 
+            strtoupper($_POST['roi'] ?? ''), 
+            $_POST['telefono'] ?? '', 
+            $_POST['direccion'] ?? '', 
+            $_POST['direccion_numero'] ?? '', 
+            $_POST['cp'] ?? '', 
+            $_POST['id_pais'] ?? 'ES', 
+            !empty($_POST['id_provincia']) ? $_POST['id_provincia'] : null, 
+            !empty($_POST['id_ciudad']) ? $_POST['id_ciudad'] : null
+        ]);
+    }
+
     $db->commit();
     echo json_encode(["success" => true, "foto" => $fotoPath]);
 }

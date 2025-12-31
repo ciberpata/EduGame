@@ -39,13 +39,16 @@ function actualizarFicheroEstado($db, $idPartida) {
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($data) {
+            // FORZAMOS EL CASTEO AQUÍ PARA QUE EL ALUMNO SIEMPRE TENGA EL TIEMPO CORRECTO
+            $data['tiempo_limite'] = (int)($data['tiempo_limite'] ?? 0);
             $data['tiempo_restante'] = 0;
+            
             if ($data['estado_pregunta'] === 'respondiendo' && $data['tiempo_inicio_pregunta']) {
                 $inicio = new DateTime($data['tiempo_inicio_pregunta']);
                 $ahora = new DateTime();
                 $diff = $ahora->getTimestamp() - $inicio->getTimestamp();
-                $restante = (int)$data['tiempo_limite'] - $diff;
-                $data['tiempo_restante'] = $restante > 0 ? $restante : 0;
+                $restante = $data['tiempo_limite'] - $diff;
+                $data['tiempo_restante'] = $restante > 0 ? (int)$restante : 0;
             }
             if ($data['estado_pregunta'] === 'intro') { $data['json_opciones'] = null; }
 
@@ -59,35 +62,65 @@ function actualizarFicheroEstado($db, $idPartida) {
 
 try {
     switch ($action) {
-        case 'crear': crearPartida($db, ($urole==1 && !empty($input['target_user_id'])) ? $input['target_user_id'] : $uid, $input); break;
-        case 'listar': listarPartidas($db, $uid, $urole); break;
-        case 'borrar': borrarPartida($db, $uid, $urole, $input['id_partida']); break;
-        case 'ver_jugadores': verJugadores($db, $input['id_partida'] ?? $_GET['id_partida']); break;
-        
-        case 'info_proyector': getInfoProyector($db, $input['codigo_pin'] ?? $_GET['codigo_pin']); break;
-        case 'estado_juego': obtenerEstadoJuego($db, $input['codigo_pin'] ?? $_GET['codigo_pin']); break;
-        
-        case 'abrir_sala': 
-            cambiarEstadoPartida($db, $uid, $urole, $input['id_partida'], 'sala_espera'); 
+        case 'crear':
+            crearPartida($db, ($urole == 1 && !empty($input['target_user_id'])) ? $input['target_user_id'] : $uid, $input);
+            break;
+        case 'listar':
+            listarPartidas($db, $uid, $urole);
+            break;
+        case 'borrar':
+            borrarPartida($db, $uid, $urole, $input['id_partida']);
+            break;
+        case 'ver_jugadores':
+            verJugadores($db, $input['id_partida'] ?? $_GET['id_partida']);
+            break;
+        case 'info_proyector':
+            getInfoProyector($db, $input['codigo_pin'] ?? $_GET['codigo_pin']);
+            break;
+        case 'estado_juego':
+            obtenerEstadoJuego($db, $input['codigo_pin'] ?? $_GET['codigo_pin']);
+            break;
+        case 'abrir_sala':
+            cambiarEstadoPartida($db, $uid, $urole, $input['id_partida'], 'sala_espera');
             actualizarFicheroEstado($db, $input['id_partida']);
             break;
-        case 'iniciar_juego': 
-            iniciarJuego($db, $uid, $urole, $input['id_partida']); 
+        case 'iniciar_juego':
+            iniciarJuego($db, $uid, $urole, $input['id_partida']);
             actualizarFicheroEstado($db, $input['id_partida']);
             break;
-        case 'siguiente_fase': 
-            avanzarFase($db, $uid, $input['id_partida']); 
+        case 'siguiente_fase':
+            avanzarFase($db, $uid, $input['id_partida']);
             actualizarFicheroEstado($db, $input['id_partida']);
             break;
-        case 'finalizar': 
-            cambiarEstadoPartida($db, $uid, $urole, $input['id_partida'], 'finalizada'); 
+        case 'finalizar':
+            cambiarEstadoPartida($db, $uid, $urole, $input['id_partida'], 'finalizada');
             actualizarFicheroEstado($db, $input['id_partida']);
             break;
-            
-        case 'expulsar_jugador': expulsarJugador($db, $uid, $input['id_sesion']); break;
-        case 'ranking_parcial': getRankingParcial($db, $input['id_partida'] ?? $_GET['id_partida']); break;
-        
-        default: throw new Exception("Acción no válida");
+        case 'expulsar_jugador':
+            expulsarJugador($db, $uid, $input['id_sesion']);
+            break;
+        case 'ranking_parcial':
+            getRankingParcial($db, $input['id_partida'] ?? $_GET['id_partida']);
+            break;
+        case 'get_stats_pregunta':
+            $id_partida = $_GET['id_partida'] ?? 0;
+            // Obtenemos la pregunta actual de la partida
+            $stmtP = $db->prepare("SELECT id_pregunta_actual FROM partidas WHERE id_partida = ?");
+            $stmtP->execute([$id_partida]);
+            $idPregunta = $stmtP->fetchColumn();
+
+            // Contamos respuestas reales extrayendo el índice del JSON
+            $stmt = $db->prepare("
+                SELECT JSON_EXTRACT(respuesta_json, '$.indice') as indice, COUNT(*) as total 
+                FROM respuestas_log 
+                WHERE id_pregunta = ? AND id_sesion IN (SELECT id_sesion FROM jugadores_sesion WHERE id_partida = ?)
+                GROUP BY indice");
+            $stmt->execute([$idPregunta, $id_partida]);
+            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+            exit;
+
+        default:
+            throw new Exception("Acción no válida");
     }
 } catch (Exception $e) {
     http_response_code(500); echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -339,6 +372,8 @@ function avanzarFase($db, $uid, $idPartida) {
         
         if (!$nuevoIdPregunta) {
             $db->prepare("UPDATE partidas SET estado='finalizada' WHERE id_partida = ?")->execute([$idPartida]);
+            // Sincroniza el JSON para que el proyector detecte el fin inmediatamente
+            actualizarFicheroEstado($db, $idPartida); 
             echo json_encode(['success' => true, 'estado' => 'finalizada']); 
             return;
         }
@@ -349,11 +384,6 @@ function avanzarFase($db, $uid, $idPartida) {
 
     $sql = "UPDATE partidas SET estado_pregunta=?, pregunta_actual_index=?";
     $params = [$nuevaFase, $nuevoIdx];
-
-    if ($nuevoIdPregunta) { 
-        $sql .= ", id_pregunta_actual=?"; 
-        $params[] = $nuevoIdPregunta; 
-    }
     
     if ($updateTime) { 
         $sql .= ", tiempo_inicio_pregunta=NOW()";
