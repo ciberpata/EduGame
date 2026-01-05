@@ -428,7 +428,9 @@ if (isset($_SESSION['user_id'])) {
         }, 1500); 
     }
 
-    let timerInterval = null; // Variable global para el contador
+    // --- 3. LÓGICA Y ESTADO DEL CRONÓMETRO ---
+    window.timerInterval = null; 
+    window.lastTimerQ = null;
 
     function updateUI(data) {
         const t = UI_TEXTS[currentLang];
@@ -445,30 +447,25 @@ if (isset($_SESSION['user_id'])) {
         // --- MANEJO DE ESTADOS ---
         if (data.estado === 'sala_espera') {
             showWaitScreen(t.wait, t.wait_sub);
-            if (timerInterval) clearInterval(timerInterval);
+            if (window.timerInterval) clearInterval(window.timerInterval);
         } 
         else if (data.estado === 'jugando') {
             if (data.estado_pregunta === 'intro') {
                 showWaitScreen(t.q + " " + qIdx, t.wait_others);
-                if (timerInterval) clearInterval(timerInterval);
+                if (window.timerInterval) clearInterval(window.timerInterval);
             }
             else if (data.estado_pregunta === 'respondiendo') {
-                // Sincronización del cronómetro dinámica por cada pregunta específica
+                // Sincronización del cronómetro local
                 if (window.lastTimerQ !== qIdx) {
                     window.lastTimerQ = qIdx;
                     if (window.timerInterval) clearInterval(window.timerInterval);
                     
-                    // Forzamos el uso del tiempo asignado a la pregunta
-                    let left = 20; // Fallback extremo
-                    const tLimite = parseInt(data.tiempo_limite);
-                    const tRestante = parseInt(data.tiempo_restante);
-
-                    if (tRestante > 0) {
-                        left = tRestante;
-                    } else if (tLimite > 0) {
-                        left = tLimite;
-                    }
-                               
+                    // Priorizamos tiempo_restante del servidor. 
+                    // Si llega a 0 por lag del polling, usamos tiempo_limite para evitar el "20".
+                    let left = (data.tiempo_restante && data.tiempo_restante > 0) 
+                               ? parseInt(data.tiempo_restante) 
+                               : parseInt(data.tiempo_limite || 0);
+                    
                     const timerEl = document.getElementById('timer');
                     if(timerEl) {
                         timerEl.innerText = left;
@@ -481,16 +478,17 @@ if (isset($_SESSION['user_id'])) {
                                 timerEl.innerText = 0;
                             }
                         }, 1000);
-                    }
+                    }    
                 }
 
+                // Cambio de pantalla: De "espera" a "juego"
                 if (lastPhase !== 'respondiendo') {
                     showScreen('screen-play');
                     if (data.json_opciones) renderButtons(data.json_opciones); 
                 }
             }
             else if (data.estado_pregunta === 'resultados') {
-                if (timerInterval) clearInterval(timerInterval);
+                if (window.timerInterval) clearInterval(window.timerInterval);
                 if (lastPhase !== 'resultados') {
                     showScreen('screen-feedback');
                     const racha = parseInt(data.racha || 0);
@@ -512,7 +510,7 @@ if (isset($_SESSION['user_id'])) {
             }
         }
         else if (data.estado === 'finalizada') {
-            if (timerInterval) clearInterval(timerInterval);
+            if (window.timerInterval) clearInterval(window.timerInterval);
             if (lastPhase !== 'finalizada') {
                 showScreen('screen-end');
                 document.getElementById('playerFooter').style.display = 'none';
