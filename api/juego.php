@@ -154,7 +154,18 @@ function actualizarFicheroCache($db, $idPartida) {
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($data) {
-            $data['tiempo_restante'] = 0;
+            // Sincronización de tiempo para la caché: calculamos el tiempo restante real
+            $data['tiempo_limite'] = (int)($data['tiempo_limite'] ?? 0);
+            if ($data['estado_pregunta'] === 'respondiendo' && !empty($data['tiempo_inicio_pregunta'])) {
+                $inicio = new DateTime($data['tiempo_inicio_pregunta']);
+                $ahora = new DateTime();
+                $diff = $ahora->getTimestamp() - $inicio->getTimestamp();
+                $restante = $data['tiempo_limite'] - $diff;
+                $data['tiempo_restante'] = ($restante > 0) ? (int)$restante : 0;
+            } else {
+                $data['tiempo_restante'] = 0;
+            }
+
             $path = "../temp/partida_" . $data['id_partida'] . ".json";
             file_put_contents($path, json_encode(['success' => true, 'data' => $data]), LOCK_EX);
         }

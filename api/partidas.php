@@ -321,13 +321,18 @@ function obtenerEstadoJuego($db, $pin) {
     $stmt->execute([$pin]);
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($data && $data['estado_pregunta'] === 'respondiendo' && $data['tiempo_inicio_pregunta']) {
-        $inicio = new DateTime($data['tiempo_inicio_pregunta']);
-        $ahora = new DateTime();
-        $diff = $ahora->getTimestamp() - $inicio->getTimestamp();
-        $data['segundos_transcurridos'] = $diff;
-    } else if ($data) {
-        $data['segundos_transcurridos'] = 0;
+    if ($data) {
+        $data['tiempo_limite'] = (int)($data['tiempo_limite'] ?? 0);
+        // CALCULAMOS EL TIEMPO RESTANTE REAL DESDE EL SERVIDOR
+        if ($data['estado_pregunta'] === 'respondiendo' && !empty($data['tiempo_inicio_pregunta'])) {
+            $inicio = new DateTime($data['tiempo_inicio_pregunta']);
+            $ahora = new DateTime();
+            $diff = $ahora->getTimestamp() - $inicio->getTimestamp();
+            $restante = $data['tiempo_limite'] - $diff;
+            $data['tiempo_restante'] = $restante > 0 ? (int)$restante : 0;
+        } else {
+            $data['tiempo_restante'] = 0;
+        }
     }
 
     echo json_encode(['success' => true, 'data' => $data]);
@@ -347,7 +352,7 @@ function iniciarJuego($db, $uid, $role, $idPartida) {
 }
 
 function avanzarFase($db, $uid, $idPartida) {
-    $stmt = $db->prepare("SELECT pregunta_actual_index, estado_pregunta FROM partidas WHERE id_partida = ?");
+    $stmt = $db->prepare("SELECT pregunta_actual_index, estado_pregunta, id_pregunta_actual FROM partidas WHERE id_partida = ?");
     $stmt->execute([$idPartida]);
     $actual = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -372,26 +377,29 @@ function avanzarFase($db, $uid, $idPartida) {
         
         if (!$nuevoIdPregunta) {
             $db->prepare("UPDATE partidas SET estado='finalizada' WHERE id_partida = ?")->execute([$idPartida]);
-            // Sincroniza el JSON para que el proyector detecte el fin inmediatamente
             actualizarFicheroEstado($db, $idPartida); 
             echo json_encode(['success' => true, 'estado' => 'finalizada']); 
             return;
         }
         $nuevaFase = 'intro';
-    } else {
-        $nuevaFase = 'intro';
     }
 
-    $sql = "UPDATE partidas SET estado_pregunta=?, pregunta_actual_index=?";
+    // Construcción dinámica de la query para actualizar el ID de pregunta solo cuando cambia
+    $sql = "UPDATE partidas SET estado_pregunta = ?, pregunta_actual_index = ?";
     $params = [$nuevaFase, $nuevoIdx];
     
+    if ($nuevoIdPregunta) {
+        $sql .= ", id_pregunta_actual = ?";
+        $params[] = $nuevoIdPregunta;
+    }
+    
     if ($updateTime) { 
-        $sql .= ", tiempo_inicio_pregunta=NOW()";
+        $sql .= ", tiempo_inicio_pregunta = NOW()";
     } else {
-        $sql .= ", tiempo_inicio_pregunta=NULL";
+        $sql .= ", tiempo_inicio_pregunta = NULL";
     }
 
-    $sql .= " WHERE id_partida=?";
+    $sql .= " WHERE id_partida = ?";
     $params[] = $idPartida;
 
     $db->prepare($sql)->execute($params);
