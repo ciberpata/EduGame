@@ -219,6 +219,7 @@ $pin = $_GET['pin'] ?? '';
     </div>
 
 <script>
+
     const PIN = "<?php echo $pin; ?>";
     const shapes = ['▲', '◆', '●', '■']; 
     let gameId = null;
@@ -227,6 +228,7 @@ $pin = $_GET['pin'] ?? '';
     let playerCount = 0;
     let prevScores = {};
     let isStarting = false;
+    window.isAdvancing = false;
 
     const avatars = { 1:'🛡️', 2:'⚔️', 3:'🗡️', 4:'🏛️', 5:'🏹', 6:'🔮', 7:'🥷', 8:'🏴‍☠️', 9:'🌿', 10:'⚜️', 11:'🤖', 12:'👽', 13:'🦊', 14:'🦁', 15:'🦄' };
     function getAvatar(id) { return avatars[id] || '👤'; }
@@ -295,105 +297,8 @@ $pin = $_GET['pin'] ?? '';
         } catch(e){}
     }
 
-    async function syncLoop() {
-        if(!gameId) return;
-        try {
-            let state = null;
-            const res = await fetch(`api/partidas.php?action=estado_juego&codigo_pin=${PIN}`);
-            if(res.ok) {
-                const json = await res.json();
-                state = json.data;
-            }
-
-            if(!state) return;
-
-            // --- MANEJO DE ESTADOS ---
-            if(state.estado === 'sala_espera') {
-                switchScreen('screen-lobby');
-                loadLobbyPlayers(gameId);
-            }
-            else if (state.estado === 'jugando') {
-                if(state.estado_pregunta === 'intro') {
-                    switchScreen('screen-game');
-                    document.getElementById('introOverlay').style.display = 'flex';
-                    document.getElementById('introText').innerText = state.texto_pregunta;
-                    document.getElementById('qCounterDisplay').innerText = "Pregunta " + state.pregunta_actual_index;
-                    
-                    if(currentPhase !== 'intro' || lastQIndex !== state.pregunta_actual_index) {
-                        currentPhase = 'intro';
-                        lastQIndex = state.pregunta_actual_index;
-                        startIntroTimer(state.id_partida);
-                    }
-                }
-                else if(state.estado_pregunta === 'respondiendo') {
-                    switchScreen('screen-game');
-                    document.getElementById('introOverlay').style.display = 'none';
-                    document.getElementById('qText').innerText = state.texto_pregunta;
-                    document.getElementById('qCounterDisplay').innerText = "Pregunta " + state.pregunta_actual_index;
-                    
-                    if(document.getElementById('answersGrid').innerHTML === '' || currentPhase !== 'respondiendo') {
-                        renderAnswers(state.json_opciones);
-                    }
-                    currentPhase = 'respondiendo';
-
-                    let left = 0;
-                    if (state.tiempo_inicio_pregunta) {
-                        const startTime = new Date(state.tiempo_inicio_pregunta.replace(" ", "T")).getTime();
-                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                        const limit = parseInt(state.tiempo_limite);
-                        left = Math.max(0, limit - elapsed);
-                    }
-                    document.getElementById('timer').innerText = left;
-                    
-                    if(state.respuestas_recibidas !== undefined) {
-                        document.getElementById('answersCounter').innerText = `${state.respuestas_recibidas} / ${state.total_jugadores} Resp.`;
-                    }
-                }
-                else if(state.estado_pregunta === 'resultados') {
-                    if(currentPhase !== 'resultados') {
-                        switchScreen('screen-ranking');
-                        loadRanking(state.id_partida);
-                        currentPhase = 'resultados';
-                        window.processingNext = false;
-                    }
-                }
-            }
-            else if (state.estado === 'finalizada') {
-                const resRanking = await fetch(`api/partidas.php?action=ranking_parcial&id_partida=${gameId}`);
-                const jsonRanking = await resRanking.json();
-                const r = jsonRanking.ranking;
-                
-                gameId = null; // Detiene la sincronización
-
-                document.body.innerHTML = `
-                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background: radial-gradient(circle, #25076b, #111); text-align:center; color:white; overflow:hidden;">
-                    <h1 style="font-size:5rem; color:#facc15; text-shadow: 0 0 20px rgba(0,0,0,1); margin-bottom:20px;">🏆 PODIUM FINAL 🏆</h1>
-                    <div class="podium-wrap" style="display:flex; align-items:flex-end; justify-content:center; gap:20px; height:400px; margin-bottom:40px;">
-                        ${r[1] ? `
-                        <div class="podium-box">
-                            <div style="font-size:1.5rem; font-weight:bold; margin-bottom:10px;">${r[1].nombre_nick}</div>
-                            <div style="height:180px; background:linear-gradient(135deg, #e2e8f0, #94a3b8); width:180px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:4rem; font-weight:900;">2</div>
-                            <div style="margin-top:10px;">${r[1].puntuacion} pts</div>
-                        </div>` : ''}
-                        ${r[0] ? `
-                        <div class="podium-box">
-                            <div style="font-size:2.5rem; color:#facc15; font-weight:900; margin-bottom:15px;">👑 ${r[0].nombre_nick}</div>
-                            <div style="height:280px; background:linear-gradient(135deg, #ffd700, #f59e0b); width:220px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:6rem; font-weight:900; box-shadow:0 0 40px rgba(250,204,21,0.4);">1</div>
-                            <div style="font-size:1.8rem; font-weight:bold; margin-top:10px;">${r[0].puntuacion} pts</div>
-                        </div>` : ''}
-                        ${r[2] ? `
-                        <div class="podium-box">
-                            <div style="font-size:1.5rem; font-weight:bold; margin-bottom:10px;">${r[2].nombre_nick}</div>
-                            <div style="height:120px; background:linear-gradient(135deg, #d97706, #92400e); width:180px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:4rem; font-weight:900;">3</div>
-                            <div style="margin-top:10px;">${r[2].puntuacion} pts</div>
-                        </div>` : ''}
-                    </div>
-                    <button onclick="location.href='index.php'" class="nav-btn" style="margin-top:40px; padding:15px 60px; font-size:1.5rem; background:#fff; color:#333; border-radius:50px; font-weight:900; border:none; cursor:pointer;">FINALIZAR</button>
-                </div>`;
-            }
-        } catch(e) { console.error("Error en syncLoop:", e); }
-    }
-
+    
+    
     async function loadLobbyPlayers(id) {
         const res = await fetch(`api/partidas.php?action=ver_jugadores&id_partida=${id}`);
         const json = await res.json();
@@ -449,6 +354,126 @@ $pin = $_GET['pin'] ?? '';
             }
         }, 1000);
     }
+
+
+
+
+
+
+async function syncLoop() {
+        if(!gameId) return;
+        try {
+            let state = null;
+            const res = await fetch(`api/partidas.php?action=estado_juego&codigo_pin=${PIN}`);
+            if(res.ok) {
+                const json = await res.json();
+                state = json.data;
+            }
+
+            if(!state) return;
+
+            // Reset do flag se a fase mudou no servidor
+            if (currentPhase !== (state.estado_pregunta || state.estado)) {
+                window.isAdvancing = false;
+            }
+
+            // --- GESTÃO DE ESTADOS ---
+            if(state.estado === 'sala_espera') {
+                switchScreen('screen-lobby');
+                loadLobbyPlayers(gameId);
+            }
+            else if (state.estado === 'jugando') {
+                if(state.estado_pregunta === 'intro') {
+                    switchScreen('screen-game');
+                    document.getElementById('introOverlay').style.display = 'flex';
+                    document.getElementById('introText').innerText = state.texto_pregunta;
+                    document.getElementById('qCounterDisplay').innerText = "Pregunta " + state.pregunta_actual_index;
+                    
+                    if(currentPhase !== 'intro' || lastQIndex !== state.pregunta_actual_index) {
+                        currentPhase = 'intro';
+                        lastQIndex = state.pregunta_actual_index;
+                        startIntroTimer(state.id_partida);
+                    }
+                }
+                else if(state.estado_pregunta === 'respondiendo') {
+                    switchScreen('screen-game');
+                    document.getElementById('introOverlay').style.display = 'none';
+                    document.getElementById('qText').innerText = state.texto_pregunta;
+                    document.getElementById('qCounterDisplay').innerText = "Pregunta " + state.pregunta_actual_index;
+                    
+                    if(document.getElementById('answersGrid').innerHTML === '' || currentPhase !== 'respondiendo') {
+                        renderAnswers(state.json_opciones);
+                    }
+                    currentPhase = 'respondiendo';
+
+                    let left = parseInt(state.tiempo_restante || 0);
+                    document.getElementById('timer').innerText = left;
+                    
+                    // AVANÇO AUTOMÁTICO PARA RESULTADOS
+                    const todasRespondidas = (state.total_jugadores > 0 && state.respuestas_recibidas >= state.total_jugadores);
+                    if ((left <= 0 || todasRespondidas) && !window.isAdvancing) {
+                        window.isAdvancing = true;
+                        forceRanking(document.querySelector('.btn-next-q'));
+                    }
+
+                    if(state.respuestas_recibidas !== undefined) {
+                        document.getElementById('answersCounter').innerText = `${state.respuestas_recibidas} / ${state.total_jugadores} Resp.`;
+                    }
+                }
+                else if(state.estado_pregunta === 'resultados') {
+                    if(currentPhase !== 'resultados') {
+                        currentPhase = 'resultados';
+                        switchScreen('screen-ranking');
+                        loadRanking(state.id_partida);
+                        
+                        // AVANÇO AUTOMÁTICO PARA O PÓDIO OU PRÓXIMA PERGUNTA (10 seg)
+                        setTimeout(() => {
+                            if (currentPhase === 'resultados' && !window.isAdvancing) {
+                                window.isAdvancing = true;
+                                nextQuestion(document.querySelector('.btn-next-q'));
+                            }
+                        }, 10000); 
+                    }
+                }
+            }
+            else if (state.estado === 'finalizada') {
+                const resRanking = await fetch(`api/partidas.php?action=ranking_parcial&id_partida=${gameId}`);
+                const jsonRanking = await resRanking.json();
+                const r = jsonRanking.ranking;
+                
+                gameId = null; // Para a sincronização
+
+                document.body.innerHTML = `
+                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background: radial-gradient(circle, #25076b, #111); text-align:center; color:white; overflow:hidden;">
+                    <h1 style="font-size:5rem; color:#facc15; text-shadow: 0 0 20px rgba(0,0,0,1); margin-bottom:20px;">🏆 PODIUM FINAL 🏆</h1>
+                    <div class="podium-wrap" style="display:flex; align-items:flex-end; justify-content:center; gap:20px; height:400px; margin-bottom:40px;">
+                        ${r[1] ? `
+                        <div class="podium-box">
+                            <div style="font-size:1.5rem; font-weight:bold; margin-bottom:10px;">${r[1].nombre_nick}</div>
+                            <div style="height:180px; background:linear-gradient(135deg, #e2e8f0, #94a3b8); width:180px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:4rem; font-weight:900;">2</div>
+                            <div style="margin-top:10px;">${r[1].puntuacion} pts</div>
+                        </div>` : ''}
+                        ${r[0] ? `
+                        <div class="podium-box">
+                            <div style="font-size:2.5rem; color:#facc15; font-weight:900; margin-bottom:15px;">👑 ${r[0].nombre_nick}</div>
+                            <div style="height:280px; background:linear-gradient(135deg, #ffd700, #f59e0b); width:220px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:6rem; font-weight:900; box-shadow:0 0 40px rgba(250,204,21,0.4);">1</div>
+                            <div style="font-size:1.8rem; font-weight:bold; margin-top:10px;">${r[0].puntuacion} pts</div>
+                        </div>` : ''}
+                        ${r[2] ? `
+                        <div class="podium-box">
+                            <div style="font-size:1.5rem; font-weight:bold; margin-bottom:10px;">${r[2].nombre_nick}</div>
+                            <div style="height:120px; background:linear-gradient(135deg, #d97706, #92400e); width:180px; border-radius:15px 15px 0 0; display:flex; align-items:center; justify-content:center; font-size:4rem; font-weight:900;">3</div>
+                            <div style="margin-top:10px;">${r[2].puntuacion} pts</div>
+                        </div>` : ''}
+                    </div>
+                    <button onclick="location.href='index.php'" class="nav-btn" style="margin-top:40px; padding:15px 60px; font-size:1.5rem; background:#fff; color:#333; border-radius:50px; font-weight:900; border:none; cursor:pointer;">FINALIZAR</button>
+                </div>`;
+            }
+        } catch(e) { console.error("Error en syncLoop:", e); }
+    }
+
+
+
 
     async function loadRanking(idPartida) {
         // 1. Obtener estadísticas y estado actual simultáneamente
